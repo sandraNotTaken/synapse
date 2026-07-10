@@ -1,5 +1,18 @@
 import Image from "next/image";
 
+const user = await prisma.user.findUnique({
+  where: {
+    email: session.user!.email!,
+  },
+  include: {
+    courses: {
+      orderBy: {
+        createdAt: "desc",
+      },
+    },
+  },
+});
+
 export default function Home() {
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
