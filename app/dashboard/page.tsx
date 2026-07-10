@@ -1,6 +1,8 @@
 import { Suspense } from "react";
-import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+
+import { auth } from "@/auth";
+import { getDashboardData } from "@/lib/dashboard";
 
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { StatsGrid } from "@/components/dashboard/stats-grid";
@@ -14,14 +16,25 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
+  const data = await getDashboardData();
+
+  if (!data) {
+    redirect("/login");
+  }
+
   return (
     <main className="space-y-8">
-      <DashboardHeader name={session.user?.name} />
+      <DashboardHeader name={data.user.name} />
 
-      <StatsGrid />
+      <StatsGrid
+        totalCourses={data.totalCourses}
+        totalTopics={data.totalTopics}
+        reviewsToday={data.reviewsToday}
+        streak={data.streak}
+      />
 
       <Suspense fallback={<CourseGridSkeleton />}>
-        <RecentCourses />
+        <RecentCourses courses={data.recentCourses} />
       </Suspense>
     </main>
   );

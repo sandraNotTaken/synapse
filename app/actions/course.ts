@@ -1,7 +1,8 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 export async function createCourse(formData: FormData) {
   const session = await auth();
@@ -11,9 +12,12 @@ export async function createCourse(formData: FormData) {
   }
 
   const title = formData.get("title")?.toString();
+  const description = formData.get("description")?.toString();
+  const color =
+    formData.get("color")?.toString() || "#3B82F6";
 
   if (!title) {
-    throw new Error("Title is required");
+    throw new Error("Course title is required.");
   }
 
   const user = await prisma.user.findUnique({
@@ -23,13 +27,17 @@ export async function createCourse(formData: FormData) {
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new Error("User not found.");
   }
 
   await prisma.course.create({
     data: {
       title,
+      description,
+      color,
       userId: user.id,
     },
   });
+
+  revalidatePath("/dashboard");
 }
