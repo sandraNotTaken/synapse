@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
+import { CreateCourseDialog } from "@/components/courses/create-course-dialog";
 
 export default async function CoursePage({
   params,
@@ -18,9 +19,11 @@ export default async function CoursePage({
 
   return (
     <main>
-      <h1 className="text-4xl font-bold">
-        {course.title}
-      </h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Courses</h1>
+
+        <CreateCourseDialog />
+      </div>
     </main>
   );
 }
