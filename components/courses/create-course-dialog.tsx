@@ -1,94 +1,38 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-
-import {
-  createCourseSchema,
-  type CreateCourseInput,
-} from "@/lib/validations/course";
-
-import { createCourse } from "@/app/dashboard/courses/actions";
+import { Plus } from "lucide-react";
 
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export function CreateCourseDialog() {
-  const [open, setOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
-
-  const form = useForm<CreateCourseInput>({
-    resolver: zodResolver(createCourseSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      color: "#3B82F6",
-    },
-  });
-
-  function onSubmit(values: CreateCourseInput) {
-    startTransition(async () => {
-      await createCourse(values);
-
-      form.reset();
-
-      setOpen(false);
-    });
-  }
-
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>New Course</Button>
+    <Dialog>
+      <DialogTrigger>
+        <Button className="rounded-full">
+          <Plus className="mr-2 h-4 w-4" />
+          New course
+        </Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className="max-w-md border border-white/10 bg-[#05070d] text-white">
         <DialogHeader>
-          <DialogTitle>Create Course</DialogTitle>
+          <DialogTitle className="text-white">Create a course</DialogTitle>
+          <DialogDescription className="text-slate-400">
+            Add a new learning path and start building your personal study library.
+          </DialogDescription>
         </DialogHeader>
 
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-4"
-        >
-          <Input
-            placeholder="Course title"
-            {...form.register("title")}
-          />
-
-          {form.formState.errors.title && (
-            <p className="text-sm text-red-500">
-              {form.formState.errors.title.message}
-            </p>
-          )}
-
-          <Textarea
-            placeholder="Description (optional)"
-            {...form.register("description")}
-          />
-
-          <Input
-            type="color"
-            {...form.register("color")}
-          />
-
-          <Button
-            type="submit"
-            disabled={isPending}
-            className="w-full"
-          >
-            {isPending ? "Creating..." : "Create Course"}
-          </Button>
-        </form>
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
+          Course creation is ready for the next step of your app flow.
+        </div>
       </DialogContent>
     </Dialog>
   );

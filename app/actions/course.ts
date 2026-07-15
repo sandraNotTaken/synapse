@@ -12,7 +12,6 @@ export async function createCourse(formData: FormData) {
   }
 
   const title = formData.get("title")?.toString();
-  const description = formData.get("description")?.toString();
   const color =
     formData.get("color")?.toString() || "#3B82F6";
 
@@ -33,7 +32,6 @@ export async function createCourse(formData: FormData) {
   await prisma.course.create({
     data: {
       title,
-      description,
       color,
       userId: user.id,
     },

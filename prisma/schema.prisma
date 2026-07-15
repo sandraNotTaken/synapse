@@ -8,55 +8,46 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String?
-  email     String   @unique
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   emailVerified DateTime?
-  image     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  accounts Account[]
-  sessions Session[]
-
-  courses Course[]
+  accounts      Account[]
+  courses       Course[]
+  sessions      Session[]
 }
 
 model Course {
-  id          String   @id @default(cuid())
-  title       String
+  id        String   @id @default(cuid())
+  title     String
   description String?
-  color       String   @default("#3B82F6")
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  userId String
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  topics Topic[]
+  color     String   @default("#3B82F6")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topics    Topic[]
 }
 
 model Topic {
   id        String   @id @default(cuid())
   title     String
   createdAt DateTime @default(now())
-
-  courseId String
-  course   Course @relation(fields: [courseId], references: [id])
-
-  decks Deck[]
+  courseId  String
+  decks     Deck[]
+  course    Course   @relation(fields: [courseId], references: [id])
 }
 
 model Deck {
   id        String   @id @default(cuid())
   title     String
   createdAt DateTime @default(now())
-
-  topicId String
-  topic   Topic @relation(fields: [topicId], references: [id])
-
-  cards Card[]
+  topicId   String
+  cards     Card[]
+  topic     Topic    @relation(fields: [topicId], references: [id])
 }
 
 model Card {
@@ -64,9 +55,8 @@ model Card {
   front     String
   back      String
   createdAt DateTime @default(now())
-
-  deckId String
-  deck   Deck @relation(fields: [deckId], references: [id])
+  deckId    String
+  deck      Deck     @relation(fields: [deckId], references: [id])
 }
 
 model Account {
@@ -75,15 +65,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -93,8 +82,7 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {

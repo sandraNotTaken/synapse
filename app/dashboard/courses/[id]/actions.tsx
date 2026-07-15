@@ -30,8 +30,7 @@ export async function createCourse(data: CreateCourseInput) {
 
   await prisma.course.create({
     data: {
-      title: validated.title,
-      description: validated.description || null,
+      title: validated.title.trim(),
       color: validated.color,
       userId: user.id,
     },
