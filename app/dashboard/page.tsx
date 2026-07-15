@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { getDashboardData } from "@/lib/dashboard";
+import { NewCourseDialog } from "@/components/dashboard/new-course-dialog";
 
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { StatsGrid } from "@/components/dashboard/stats-grid";

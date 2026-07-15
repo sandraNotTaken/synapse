@@ -33,12 +33,20 @@ export async function getDashboardData() {
     0,
   );
 
+  const recentCourses = user.courses.slice(0, 5).map((course) => ({
+    id: course.id,
+    title: course.title,
+    color: course.color,
+    topics: course.topics.length,
+    progress: 0, // we'll calculate this later
+  }));
+
   return {
     user,
     totalCourses: user.courses.length,
     totalTopics,
     reviewsToday: 0,
     streak: 0,
-    recentCourses: user.courses.slice(0, 5),
+    recentCourses,
   };
 }

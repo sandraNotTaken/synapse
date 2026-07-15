@@ -15,19 +15,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { createCourse } from "@/app/actions/course";
 
 export function NewCourseDialog() {
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-
+    const [open, setOpen] = useState(false);
     return (
-        <Dialog>
-            <DialogTrigger asChild>
-                <Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger
+                render={
+                    <Button className="cursor-pointer">
                     + New Course
-                </Button>
-            </DialogTrigger>
-
+                    </Button>
+                }
+            />
             <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
                     <DialogTitle>Create Course</DialogTitle>
@@ -37,22 +37,26 @@ export function NewCourseDialog() {
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="space-y-4 py-4">
+                <form
+                    action={async (formData) => {
+                        await createCourse(formData);
+                        setOpen(false);
+                    }}
+                    className="space-y-4 py-4"
+                >
                     <Input
+                        name="title"
                         placeholder="Course title"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
+                        required
                     />
-
                     <Textarea
+                        name="description"
                         placeholder="Description (optional)"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
                     />
-                </div>
+                </form>
 
                 <DialogFooter>
-                    <Button>
+                    <Button type="submit" className="cursor-pointer">
                         Create Course
                     </Button>
                 </DialogFooter>

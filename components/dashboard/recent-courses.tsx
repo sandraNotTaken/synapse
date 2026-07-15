@@ -1,51 +1,93 @@
-import { BookOpen } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, BookOpen } from "lucide-react";
+
 import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { NewCourseDialog }  from "./new-course-dialog";
 
 interface RecentCoursesProps {
   courses: {
     id: string;
     title: string;
     color: string;
+    progress: number;
+    topics: number;
   }[];
 }
 
-export default function RecentCourses({ courses }: RecentCoursesProps) {
+export default function RecentCourses({
+  courses,
+}: RecentCoursesProps) {
   return (
-    <Card className="border-white/10 bg-white/5 shadow-[0_20px_60px_-25px_rgba(15,23,42,0.7)]">
-      <CardContent className="p-6">
-        <div className="mb-6 flex items-start justify-between gap-4">
+    <Card className="border-white/10 bg-white/5 backdrop-blur-xl">
+      <CardContent className="space-y-6 p-6">
+        <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-white">Recent courses</h2>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-slate-400">
-              A calm, elegant overview of your latest learning tracks and progress.
-            </p>
+              <h2 className="text-xl font-semibold text-white">
+                  Continue Learning
+              </h2>
+
+              <p className="text-sm text-slate-400">
+                  Pick up where you left off.
+              </p>
           </div>
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-slate-950/60 text-slate-300">
-            <BookOpen className="h-5 w-5" />
+
+          <div className="flex items-center gap-3">
+              <NewCourseDialog />
+              <BookOpen className="h-5 w-5 text-slate-400" />
           </div>
         </div>
 
         {courses.length === 0 ? (
-          <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-6 text-sm text-slate-400">
+          <div className="rounded-xl border border-dashed border-white/10 py-10 text-center text-slate-400">
             No courses yet.
           </div>
         ) : (
-          <div className="grid gap-4">
+          <div className="space-y-4">
             {courses.map((course) => (
               <div
                 key={course.id}
-                className="group flex items-center gap-4 rounded-3xl border border-white/10 bg-slate-950/40 p-4 transition hover:border-indigo-400/40 hover:bg-slate-900/70"
+                className="rounded-2xl border border-white/10 bg-slate-900/60 p-5 transition-all hover:border-indigo-500/40 hover:bg-slate-900"
               >
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-slate-200">
-                  <BookOpen className="h-5 w-5" />
-                </div>
+                <div className="flex items-start justify-between">
+                  <div className="space-y-3 flex-1">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="h-3 w-3 rounded-full"
+                        style={{
+                          backgroundColor: course.color,
+                        }}
+                      />
 
-                <div className="min-w-0">
-                  <p className="truncate text-base font-semibold text-white">{course.title}</p>
-                  <div className="mt-1 flex items-center gap-2 text-sm text-slate-400">
-                    <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: course.color }} />
-                    <span>Course</span>
+                      <h3 className="font-semibold text-white">
+                        {course.title}
+                      </h3>
+                    </div>
+
+                    <div className="text-sm text-slate-400">
+                      {course.topics} Topics
+                    </div>
+
+                    <Progress
+                      value={course.progress}
+                      className="h-2"
+                    />
+
+                    <div className="text-xs text-slate-400">
+                      {course.progress}% completed
+                    </div>
                   </div>
+
+                  <Button
+                    size="sm"
+                    className="rounded-xl"
+                  >
+                    <Link href={`/dashboard/courses/${course.id}`}>
+                      Continue
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
                 </div>
               </div>
             ))}
