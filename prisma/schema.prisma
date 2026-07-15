@@ -33,17 +33,15 @@ model Course {
 }
 
 model Topic {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  title     String
+  content   String?
+  createdAt DateTime @default(now())
 
-  courseId    String
-  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
-  notes       Note[]
-  flashcards  Flashcard[]
-  quizzes     Quiz[]
+  decks Deck[]
 }
 
 model Deck {

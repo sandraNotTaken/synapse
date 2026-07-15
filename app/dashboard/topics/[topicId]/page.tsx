@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import TopicEditor from "@/components/topic/topic-editor";
 import { ArrowLeft, FileText } from "lucide-react";
 
 import { auth } from "@/auth";
@@ -66,9 +67,10 @@ export default async function TopicPage({ params }: Props) {
             Notes
           </h2>
 
-          <p className="mt-2 text-sm text-slate-400">
-            No notes yet.
-          </p>
+          <TopicEditor
+            topicId={topic.id}
+            initialContent={topic.content ?? ""}
+          />
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-white/5 p-6">

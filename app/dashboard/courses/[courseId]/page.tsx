@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react"
+import { NewTopicDialog } from "@/components/dashboard/new-topic-dialog";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -42,16 +43,20 @@ export default async function CoursePage({ params }: PageProps) {
 
   return (
     <main className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-white">
-          {course.title}
-        </h1>
+      <div className="flex items-start justify-between">
+        <div className="flex flex-col">
+          <h1 className="text-3xl font-bold text-white">
+            {course.title}
+          </h1>
 
-        {course.description && (
-          <p className="mt-2 text-slate-400">
-            {course.description}
-          </p>
-        )}
+          {course.description && (
+            <p className="mt-2 text-slate-400">
+              {course.description}
+            </p>
+          )}
+        </div>
+
+        <NewTopicDialog courseId={course.id} />
       </div>
 
       <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
