@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function createCourse(formData: FormData) {
+  console.log("Creating course...")
   const session = await auth();
 
   if (!session?.user?.email) {
@@ -33,10 +34,11 @@ export async function createCourse(formData: FormData) {
   await prisma.course.create({
     data: {
       title,
+      description,
       color: "#6366F1",
       userId: user.id,
     },
-  });
+});
 
   revalidatePath("/dashboard");
 }

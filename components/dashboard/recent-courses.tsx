@@ -46,9 +46,10 @@ export default function RecentCourses({
         ) : (
           <div className="space-y-4">
             {courses.map((course) => (
-              <div
+              <Link
                 key={course.id}
-                className="rounded-2xl border border-white/10 bg-slate-900/60 p-5 transition-all hover:border-indigo-500/40 hover:bg-slate-900"
+                href={`/dashboard/courses/${course.id}`}
+                className="block rounded-2xl border border-white/10 bg-slate-900/60 p-5 transition-all hover:border-indigo-500/40 hover:bg-slate-900"
               >
                 <div className="flex items-start justify-between">
                   <div className="space-y-3 flex-1">
@@ -78,18 +79,8 @@ export default function RecentCourses({
                       {course.progress}% completed
                     </div>
                   </div>
-
-                  <Button
-                    size="sm"
-                    className="rounded-xl"
-                  >
-                    <Link href={`/dashboard/courses/${course.id}`}>
-                      Continue
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

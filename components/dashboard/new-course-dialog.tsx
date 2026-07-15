@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { createCourse } from "@/app/actions/course";
+import { createCourse } from "@/app/dashboard/actions";
 
 export function NewCourseDialog() {
     const [open, setOpen] = useState(false);
@@ -53,13 +53,14 @@ export function NewCourseDialog() {
                         name="description"
                         placeholder="Description (optional)"
                     />
+
+                    <DialogFooter>
+                        <Button type="submit" className="cursor-pointer">
+                            Create Course
+                        </Button>
+                    </DialogFooter>
                 </form>
 
-                <DialogFooter>
-                    <Button type="submit" className="cursor-pointer">
-                        Create Course
-                    </Button>
-                </DialogFooter>
             </DialogContent>
         </Dialog>
     );
