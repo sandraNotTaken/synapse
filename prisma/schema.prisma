@@ -21,24 +21,29 @@ model User {
 }
 
 model Course {
-  id        String   @id @default(cuid())
-  title     String
+  id          String   @id @default(cuid())
+  title       String
+  color       String   @default("#3B82F6")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
   description String?
-  color     String   @default("#3B82F6")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  topics    Topic[]
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topics      Topic[]
 }
 
 model Topic {
-  id        String   @id @default(cuid())
-  title     String
-  createdAt DateTime @default(now())
-  courseId  String
-  decks     Deck[]
-  course    Course   @relation(fields: [courseId], references: [id])
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  notes       Note[]
+  flashcards  Flashcard[]
+  quizzes     Quiz[]
 }
 
 model Deck {

@@ -1,4 +1,6 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react"
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -62,14 +64,25 @@ export default async function CoursePage({ params }: PageProps) {
             No topics yet.
           </p>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {course.topics.map((topic) => (
-              <div
+              <Link
                 key={topic.id}
-                className="rounded-xl border border-white/10 bg-slate-900/60 p-4"
+                href={`/dashboard/topics/${topic.id}`}
+                className="group flex items-center justify-between rounded-2xl border border-white/10 bg-slate-900/60 p-5 transition hover:border-indigo-500/40 hover:bg-slate-900"
               >
-                {topic.title}
-              </div>
+                <div>
+                  <h3 className="font-semibold text-white">
+                    {topic.title}
+                  </h3>
+
+                  <p className="mt-1 text-sm text-slate-400">
+                    Start studying this topic
+                  </p>
+                </div>
+
+                <ArrowRight className="h-5 w-5 text-slate-500 transition group-hover:translate-x-1 group-hover:text-white" />
+              </Link>
             ))}
           </div>
         )}

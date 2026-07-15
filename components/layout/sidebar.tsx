@@ -16,31 +16,11 @@ import {
 import Logo from "@/components/branding/logo";
 
 const links = [
-  {
-    title: "Home",
-    href: "/dashboard",
-    icon: House,
-  },
-  {
-    title: "Courses",
-    href: "/dashboard/courses",
-    icon: BookOpen,
-  },
-  {
-    title: "Study",
-    href: "/dashboard/study",
-    icon: BrainCircuit,
-  },
-  {
-    title: "Decks",
-    href: "/dashboard/decks",
-    icon: Layers3,
-  },
-  {
-    title: "Settings",
-    href: "/dashboard/settings",
-    icon: Settings,
-  },
+  { title: "Home", href: "/dashboard", icon: House },
+  { title: "Courses", href: "/dashboard/courses", icon: BookOpen },
+  { title: "Study", href: "/dashboard/study", icon: BrainCircuit },
+  { title: "Decks", href: "/dashboard/decks", icon: Layers3 },
+  { title: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
 export default function Sidebar() {
@@ -58,11 +38,13 @@ export default function Sidebar() {
         </p>
       </div>
 
-      <nav className="flex flex-1 flex-col gap-2">
+      <nav className="flex flex-1 flex-col gap-2 pb-6">
         {links.map((link) => {
           const Icon = link.icon;
-          const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
-
+          const active =
+            link.href === "/dashboard"
+              ? pathname === "/dashboard"
+              : pathname === link.href || pathname.startsWith(`${link.href}/`);
           return (
             <Link
               key={link.href}
@@ -107,15 +89,15 @@ export default function Sidebar() {
         onClick={() => setMobileOpen(false)}
       />
 
-      <aside className="hidden w-72 flex-col border-r border-white/10 bg-[#06070b]/95 px-4 py-6 backdrop-blur xl:flex">
+      <aside className="hidden h-screen w-72 flex-col overflow-hidden border-r border-white/10 bg-[#06070b]/95 px-4 py-6 backdrop-blur xl:flex">
         <div className="px-4 pb-6">
           <Logo />
         </div>
-        <div className="flex-1">{navContent}</div>
+        <div className="flex-1 overflow-hidden">{navContent}</div>
       </aside>
 
       <aside
-        className={`fixed left-0 top-0 z-50 flex h-full w-72 max-w-[85vw] flex-col border-r border-white/10 bg-[#06070b]/95 p-6 backdrop-blur transition-transform duration-300 xl:hidden ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed left-0 top-0 z-50 flex h-full w-72 max-w-[85vw] flex-col overflow-hidden border-r border-white/10 bg-[#06070b]/95 p-6 backdrop-blur transition-transform duration-300 xl:hidden ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div className="mb-6 flex items-center justify-between">
           <Logo />
@@ -128,7 +110,7 @@ export default function Sidebar() {
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto">{navContent}</div>
+        <div className="flex-1 overflow-hidden">{navContent}</div>
       </aside>
     </>
   );
