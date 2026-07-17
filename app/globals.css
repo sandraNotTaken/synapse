@@ -123,6 +123,10 @@
     @apply border-border outline-ring/50;
   }
 
+  button, [role="button"], select, summary, input[type="submit"], input[type="button"] {
+    cursor: pointer;
+  }
+
   body {
     @apply min-h-screen bg-background text-foreground antialiased;
     background-image: radial-gradient(circle at top left, rgba(99, 102, 241, 0.2), transparent 28%), linear-gradient(135deg, #05070d 0%, #090b14 100%);

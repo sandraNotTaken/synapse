@@ -49,22 +49,38 @@ export default function Sidebar() {
 
   const navContent = (
     <>
-      <div className="mb-6 rounded-2xl border border-white/10 bg-white/5 p-4">
-        <p className="text-[11px] uppercase tracking-[0.35em] text-slate-400">
-          Focus mode
-        </p>
-        <p className="mt-2 text-sm font-semibold text-white">
-          Deep study, zero clutter.
+      <div className="mb-6 rounded-2xl border border-white/5 bg-[#0b0e14]/40 p-4 backdrop-blur-sm">
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400">
+            Focus mode active
+          </p>
+        </div>
+        <p className="mt-2 text-xs text-slate-400 leading-relaxed">
+          Deep study space with zero clutter.
         </p>
       </div>
 
       <nav className="flex flex-1 flex-col gap-2 pb-6">
         {links.map((link) => {
           const Icon = link.icon;
-          const active =
-            link.href === "/dashboard"
-              ? pathname === "/dashboard"
-              : pathname === link.href || pathname.startsWith(`${link.href}/`);
+          
+          let active = false;
+          if (link.href === "/dashboard") {
+            active = pathname === "/dashboard";
+          } else if (link.href === "/dashboard/courses") {
+            active =
+              pathname === "/dashboard/courses" ||
+              pathname.startsWith("/dashboard/courses/") ||
+              pathname.startsWith("/dashboard/topics/");
+          } else {
+            active =
+              pathname === link.href || pathname.startsWith(`${link.href}/`);
+          }
+
           return (
             <Link
               key={link.href}
@@ -82,13 +98,13 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="rounded-[24px] border border-white/10 bg-gradient-to-br from-indigo-600 via-violet-500 to-cyan-500 p-5">
-        <p className="text-sm text-white/80">Daily goal</p>
-        <h3 className="mt-2 text-3xl font-semibold">45 min</h3>
-        <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/20">
-          <div className="h-full w-[65%] rounded-full bg-white" />
+      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.15),_transparent_60%),linear-gradient(135deg,_#0f172a/70,_#020617/90)] p-5 shadow-[0_20px_50px_-25px_rgba(79,70,229,0.3)]">
+        <p className="text-xs uppercase tracking-wider text-indigo-300">Daily goal</p>
+        <h3 className="mt-2 text-3xl font-bold text-white">45 min</h3>
+        <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
+          <div className="h-full w-[65%] rounded-full bg-gradient-to-r from-indigo-500 to-cyan-400 shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
         </div>
-        <p className="mt-3 text-sm text-white/80">29 minutes completed</p>
+        <p className="mt-3 text-xs text-slate-400">29 minutes completed</p>
       </div>
     </>
   );
