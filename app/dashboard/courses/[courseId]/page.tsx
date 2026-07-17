@@ -65,9 +65,19 @@ export default async function CoursePage({ params }: PageProps) {
         </h2>
 
         {course.topics.length === 0 ? (
-          <p className="text-slate-400">
-            No topics yet.
-          </p>
+          <div className="rounded-2xl border border-dashed border-indigo-500/40 p-10 text-center">
+            <h3 className="text-lg font-semibold text-white">
+              Your course is ready
+            </h3>
+
+            <p className="mt-2 text-slate-400">
+              Add your first topic to start studying.
+            </p>
+
+            <div className="mt-6 flex justify-center">
+              <NewTopicDialog courseId={course.id} />
+            </div>
+          </div>
         ) : (
           <div className="space-y-4">
             {course.topics.map((topic) => (

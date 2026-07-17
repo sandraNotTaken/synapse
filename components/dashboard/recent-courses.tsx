@@ -68,6 +68,10 @@ export default function RecentCourses({
                       </h3>
                     </div>
 
+                    <p className="text-sm text-slate-400">
+                      {course.description ?? "No description yet"}
+                    </p>
+
                     <div className="text-sm text-slate-400">
                       {course.topics} Topics
                     </div>
@@ -77,8 +81,15 @@ export default function RecentCourses({
                       className="h-2"
                     />
 
-                    <div className="text-xs text-slate-400">
-                      {course.progress}% completed
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-slate-400">
+                        {course.progress}% completed
+                      </span>
+
+                      <span className="text-xs text-slate-500">
+                        Updated{" "}
+                        {new Date(course.updatedAt).toLocaleDateString()}
+                      </span>
                     </div>
                   </div>
                 </div>

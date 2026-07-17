@@ -1,9 +1,12 @@
-﻿import AuthNavbar from "@/components/auth/auth-navbar";
+import AuthNavbar from "@/components/auth/auth-navbar";
 import GoogleButton from "@/components/auth/google-button";
+import DevLoginButton from "@/components/auth/dev-login-button";
 import FeaturedCourse from "@/components/auth/featured-course";
 import NeuralNetwork from "@/components/backgrounds/neural-network";
 
 export default function LoginPage() {
+  const isDev = process.env.NODE_ENV === "development";
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#09090B] text-white">
       <NeuralNetwork />
@@ -23,12 +26,12 @@ export default function LoginPage() {
           </h1>
 
           <p className="mt-6 max-w-xl text-base leading-8 text-zinc-400 sm:mt-8 sm:text-lg">
-            Turn your notes into a beautiful learning system inspired by
-            Spotify's simplicity and Netflix's immersive experience.
+            Turn your notes into a beautiful learning system.
           </p>
 
           <div className="mt-8 max-w-sm sm:mt-12">
             <GoogleButton />
+            {isDev && <DevLoginButton />}
           </div>
         </div>
 
