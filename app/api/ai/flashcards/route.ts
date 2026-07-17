@@ -3,6 +3,8 @@ import { createGroq } from "@ai-sdk/groq";
 import { generateText } from "ai";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { promises as fs } from "fs";
+import { join } from "path";
 
 const groq = createGroq({
   apiKey: process.env.GROQ_API_KEY,
@@ -45,12 +47,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Topic not found" }, { status: 404 });
     }
 
-    // Generate flashcards using Llama 3
-    const { text } = await generateText({
-      model: groq("llama-3.3-70b-versatile"),
-      system:
-        "You are an expert study aid generator. Extract the key terms, definitions, formulas, and concepts from the user's study notes and convert them into high-quality flashcards (Question/Front and Answer/Back pairs). Ensure questions are clear and answers are concise. Your response must be a single raw JSON object matching the requested schema, with no markdown code blocks, preambles, or formatting.",
-      prompt: `Extract flashcards from these study notes.
+    // Extract image URLs from note content
+    const imgRegex = /<img[^>]+src=["']([^"']+)["']/g;
+    let match;
+    const imageUrls: string[] = [];
+    while ((match = imgRegex.exec(content)) !== null) {
+      imageUrls.push(match[1]);
+    }
+
+    const systemPrompt =
+      "You are an expert study aid generator. Extract the key terms, definitions, formulas, and concepts from the user's study notes and convert them into high-quality flashcards (Question/Front and Answer/Back pairs). Ensure questions are clear and answers are concise. Your response must be a single raw JSON object matching the requested schema, with no markdown code blocks, preambles, or formatting.";
+
+    const promptText = `Extract flashcards from these study notes and any attached images.
 Output schema:
 {
   "cards": [
@@ -62,15 +70,65 @@ Output schema:
 }
 
 Study Notes:
-${content}`,
-    });
+${content.replace(/<img[^>]+>/g, "")}`;
+
+    let textResult = "";
+
+    if (imageUrls.length > 0) {
+      // Use Groq Vision model if there are images
+      const messageContent: any[] = [
+        {
+          type: "text",
+          text: promptText,
+        },
+      ];
+
+      for (const url of imageUrls) {
+        try {
+          if (url.startsWith("/uploads/")) {
+            const filePath = join(process.cwd(), "public", url);
+            const buffer = await fs.readFile(filePath);
+            const ext = url.split(".").pop()?.toLowerCase();
+            const mimeType = ext === "png" ? "image/png" : ext === "gif" ? "image/gif" : "image/jpeg";
+
+            messageContent.push({
+              type: "image",
+              image: buffer,
+              mimeType: mimeType,
+            });
+          }
+        } catch (err) {
+          console.error("Failed to read image file for flashcards:", url, err);
+        }
+      }
+
+      const { text } = await generateText({
+        model: groq("meta-llama/llama-4-scout-17b-16e-instruct"),
+        system: systemPrompt,
+        messages: [
+          {
+            role: "user",
+            content: messageContent,
+          },
+        ],
+      });
+      textResult = text;
+    } else {
+      // Use Llama 3.3 70B for text-only flashcards
+      const { text } = await generateText({
+        model: groq("llama-3.3-70b-versatile"),
+        system: systemPrompt,
+        prompt: promptText,
+      });
+      textResult = text;
+    }
 
     let object: { cards?: Array<{ front: string; back: string }> } = {};
     try {
-      const cleanedText = text.replace(/```json/g, "").replace(/```/g, "").trim();
+      const cleanedText = textResult.replace(/```json/g, "").replace(/```/g, "").trim();
       object = JSON.parse(cleanedText);
     } catch (parseError) {
-      console.error("Failed to parse JSON response:", text);
+      console.error("Failed to parse JSON response:", textResult);
       return NextResponse.json(
         { error: "AI generated an invalid response format. Please try again." },
         { status: 500 }

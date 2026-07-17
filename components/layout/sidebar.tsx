@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   House,
   BookOpen,
@@ -11,6 +11,7 @@ import {
   Settings,
   Menu,
   X,
+  ChevronDown,
 } from "lucide-react";
 
 import Logo from "@/components/branding/logo";
@@ -43,9 +44,35 @@ const links = [
   },
 ];
 
-export default function Sidebar() {
+interface Topic {
+  id: string;
+  title: string;
+  courseId: string;
+}
+
+interface Course {
+  id: string;
+  title: string;
+  color: string;
+  topics: Topic[];
+}
+
+interface SidebarProps {
+  courses?: Course[];
+}
+
+export default function Sidebar({ courses }: SidebarProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [coursesExpanded, setCoursesExpanded] = useState(true);
+
+  useEffect(() => {
+    setMounted(true);
+    if (pathname.startsWith("/dashboard/courses") || pathname.startsWith("/dashboard/topics")) {
+      setCoursesExpanded(true);
+    }
+  }, [pathname]);
 
   const navContent = (
     <>
@@ -82,18 +109,91 @@ export default function Sidebar() {
           }
 
           return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-300 ${
-                active
-                  ? "bg-gradient-to-r from-indigo-600 to-violet-500 text-white shadow-lg shadow-indigo-500/20"
-                  : "text-slate-400 hover:bg-white/10 hover:text-white"
-              }`}
-            >
-              <Icon className="h-4.5 w-4.5" />
-              <span>{link.title}</span>
-            </Link>
+            <div key={link.href} className="space-y-1">
+              <div className="flex items-center justify-between gap-1 group">
+                <Link
+                  href={link.href}
+                  className={`flex flex-1 items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-300 ${
+                    active
+                      ? "bg-gradient-to-r from-indigo-600 to-violet-500 text-white shadow-lg shadow-indigo-500/20"
+                      : "text-slate-400 hover:bg-white/10 hover:text-white"
+                  }`}
+                >
+                  <Icon className="h-4.5 w-4.5" />
+                  <span>{link.title}</span>
+                </Link>
+
+                {link.href === "/dashboard/courses" && courses && courses.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setCoursesExpanded(!coursesExpanded);
+                    }}
+                    className={`mr-1 rounded-xl p-2 transition cursor-pointer ${
+                      active
+                        ? "text-white/70 hover:bg-white/10 hover:text-white"
+                        : "text-slate-400 hover:bg-white/10 hover:text-white"
+                    }`}
+                    aria-label="Toggle courses list"
+                  >
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform duration-300 ${
+                        coursesExpanded ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                )}
+              </div>
+
+              {/* Render Course hierarchy if link is Courses and active or we want it visible */}
+              {link.href === "/dashboard/courses" && coursesExpanded && mounted && courses && courses.length > 0 && (
+                <div className="ml-6 mt-2 space-y-3 border-l border-white/5 pl-4 py-1">
+                  {courses.map((course) => {
+                    const isCourseActive = pathname === `/dashboard/courses/${course.id}`;
+                    return (
+                      <div key={course.id} className="space-y-1">
+                        <Link
+                          href={`/dashboard/courses/${course.id}`}
+                          className={`flex items-center gap-2 text-xs font-semibold transition ${
+                            isCourseActive ? "text-white" : "text-slate-400 hover:text-white"
+                          }`}
+                        >
+                          <span
+                            className="h-2 w-2 rounded-full shrink-0"
+                            style={{ backgroundColor: course.color }}
+                          />
+                          <span className="truncate">{course.title}</span>
+                        </Link>
+
+                        {/* Render nested topics */}
+                        {course.topics && course.topics.length > 0 && (
+                          <div className="ml-4 space-y-1.5 pt-1">
+                            {course.topics.map((topic) => {
+                              const isTopicActive = pathname === `/dashboard/topics/${topic.id}`;
+                              return (
+                                <Link
+                                  key={topic.id}
+                                  href={`/dashboard/topics/${topic.id}`}
+                                  className={`block truncate pl-2 text-[11px] transition ${
+                                    isTopicActive
+                                      ? "text-indigo-400 border-l border-indigo-500 font-medium"
+                                      : "text-slate-500 hover:text-slate-300 border-l border-transparent"
+                                  }`}
+                                >
+                                  {topic.title}
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           );
         })}
       </nav>
