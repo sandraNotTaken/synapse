@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import TopicEditor from "@/components/topic/topic-editor";
+import TopicEditor from "@/components/editor/topic-editor";
 import { ArrowLeft, FileText } from "lucide-react";
 
 import { auth } from "@/auth";

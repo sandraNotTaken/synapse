@@ -41,16 +41,18 @@ model Topic {
   courseId String
   course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
-  decks Deck[]
+  decks Deck[] @relation("TopicDecks")
 }
 
 model Deck {
   id        String   @id @default(cuid())
   title     String
   createdAt DateTime @default(now())
-  topicId   String
-  cards     Card[]
-  topic     Topic    @relation(fields: [topicId], references: [id])
+
+  topicId String
+  topic   Topic  @relation("TopicDecks", fields: [topicId], references: [id])
+
+  cards Card[]
 }
 
 model Card {

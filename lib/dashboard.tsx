@@ -34,12 +34,20 @@ export async function getDashboardData() {
   );
 
   const recentCourses = user.courses.slice(0, 5).map((course) => ({
-    id: course.id,
-    title: course.title,
-    color: course.color,
-    topics: course.topics.length,
-    progress: 0, // we'll calculate this later
-  }));
+  id: course.id,
+  title: course.title,
+ description: course.description,
+  color: course.color,
+
+  topics: course.topics.length,
+
+  progress:
+    course.topics.length === 0
+      ? 0
+      : Math.min(course.topics.length * 20, 100),
+
+  updatedAt: course.updatedAt,
+}))
 
   return {
     user,

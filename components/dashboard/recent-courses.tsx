@@ -10,9 +10,11 @@ interface RecentCoursesProps {
   courses: {
     id: string;
     title: string;
+    description: string | null;
     color: string;
     progress: number;
     topics: number;
+    updatedAt: Date;
   }[];
 }
 
