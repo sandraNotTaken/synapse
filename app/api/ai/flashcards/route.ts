@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createGroq } from "@ai-sdk/groq";
-import { generateObject } from "ai";
-import { z } from "zod";
+import { generateText } from "ai";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 
@@ -47,20 +46,36 @@ export async function POST(req: NextRequest) {
     }
 
     // Generate flashcards using Llama 3
-    const { object } = await generateObject({
+    const { text } = await generateText({
       model: groq("llama-3.3-70b-versatile"),
-      schema: z.object({
-        cards: z.array(
-          z.object({
-            front: z.string().describe("The question or term on the front of the card"),
-            back: z.string().describe("The answer or definition on the back of the card"),
-          })
-        ),
-      }),
       system:
-        "You are an expert study aid generator. Extract the key terms, definitions, formulas, and concepts from the user's study notes and convert them into high-quality flashcards (Question/Front and Answer/Back pairs). Ensure questions are clear and answers are concise.",
-      prompt: `Study Notes:\n${content}`,
+        "You are an expert study aid generator. Extract the key terms, definitions, formulas, and concepts from the user's study notes and convert them into high-quality flashcards (Question/Front and Answer/Back pairs). Ensure questions are clear and answers are concise. Your response must be a single raw JSON object matching the requested schema, with no markdown code blocks, preambles, or formatting.",
+      prompt: `Extract flashcards from these study notes.
+Output schema:
+{
+  "cards": [
+    {
+      "front": "The question or term",
+      "back": "The answer or definition"
+    }
+  ]
+}
+
+Study Notes:
+${content}`,
     });
+
+    let object: { cards?: Array<{ front: string; back: string }> } = {};
+    try {
+      const cleanedText = text.replace(/```json/g, "").replace(/```/g, "").trim();
+      object = JSON.parse(cleanedText);
+    } catch (parseError) {
+      console.error("Failed to parse JSON response:", text);
+      return NextResponse.json(
+        { error: "AI generated an invalid response format. Please try again." },
+        { status: 500 }
+      );
+    }
 
     if (!object.cards || object.cards.length === 0) {
       return NextResponse.json(

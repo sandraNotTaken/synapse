@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createGroq } from "@ai-sdk/groq";
-import { generateObject } from "ai";
-import { z } from "zod";
+import { generateText } from "ai";
 import { auth } from "@/auth";
 
 const groq = createGroq({
@@ -26,22 +25,46 @@ export async function POST(req: NextRequest) {
     }
 
     // Generate quiz questions using Llama 3
-    const { object } = await generateObject({
+    const { text } = await generateText({
       model: groq("llama-3.3-70b-versatile"),
-      schema: z.object({
-        questions: z.array(
-          z.object({
-            question: z.string().describe("The quiz question text"),
-            options: z.array(z.string()).min(4).max(4).describe("List of exactly 4 multiple choice options"),
-            correctIndex: z.number().min(0).max(3).describe("0-indexed position of the correct option in options"),
-            explanation: z.string().describe("Detailed explanation for why the correct option is right"),
-          })
-        ),
-      }),
       system:
-        "You are an expert exam designer. Generate 5 multiple-choice questions (MCQs) based on the user's study notes. Ensure questions are challenging, clear, and test actual understanding. Include exactly 4 options per question, index the correct answer (0-3), and write a clear explanatory rationale.",
-      prompt: `Study Notes:\n${content}`,
+        "You are an expert exam designer. Generate 5 multiple-choice questions (MCQs) based on the user's study notes. Ensure questions are challenging, clear, and test actual understanding. Include exactly 4 options per question, index the correct answer (0-3), and write a clear explanatory rationale. Your response must be a single raw JSON object matching the requested schema, with no markdown code blocks, preambles, or formatting.",
+      prompt: `Generate a quiz from these study notes.
+Output schema:
+{
+  "questions": [
+    {
+      "question": "The quiz question text",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correctIndex": 0,
+      "explanation": "Why Option A is correct"
+    }
+  ]
+}
+
+Study Notes:
+${content}`,
     });
+
+    let object: {
+      questions?: Array<{
+        question: string;
+        options: string[];
+        correctIndex: number;
+        explanation: string;
+      }>;
+    } = {};
+
+    try {
+      const cleanedText = text.replace(/```json/g, "").replace(/```/g, "").trim();
+      object = JSON.parse(cleanedText);
+    } catch (parseError) {
+      console.error("Failed to parse JSON response:", text);
+      return NextResponse.json(
+        { error: "AI generated an invalid response format. Please try again." },
+        { status: 500 }
+      );
+    }
 
     if (!object.questions || object.questions.length === 0) {
       return NextResponse.json(
