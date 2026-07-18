@@ -96,7 +96,7 @@ export default function TopicWorkspace({
   }
 
   // Action: Generate Flashcards
-  async function triggerFlashcards() {
+  async function triggerFlashcards(count: number, difficulty: string) {
     setLoadingAction("flashcards");
     setErrorMessage(null);
     setFlashcardSuccess(null);
@@ -104,7 +104,7 @@ export default function TopicWorkspace({
       const res = await fetch("/api/ai/flashcards", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content, topicId }),
+        body: JSON.stringify({ content, topicId, count, difficulty }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to generate flashcards.");
@@ -120,7 +120,7 @@ export default function TopicWorkspace({
   }
 
   // Action: Generate Quiz
-  async function triggerQuiz() {
+  async function triggerQuiz(count: number, difficulty: string) {
     setLoadingAction("quiz");
     setErrorMessage(null);
     setQuizQuestions(null);
@@ -131,7 +131,7 @@ export default function TopicWorkspace({
       const res = await fetch("/api/ai/quiz", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ content, count, difficulty }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to generate quiz.");
@@ -146,10 +146,39 @@ export default function TopicWorkspace({
   // Append Summary to notes
   function appendSummaryToNotes() {
     if (!summary) return;
+    
+    // Clean string and convert basic Markdown to HTML
+    let cleaned = summary
+      .replace(/\\n/g, "\n")
+      .replace(/\\"/g, '"')
+      .replace(/\\/g, "");
+      
+    const lines = cleaned.split("\n");
+    const htmlLines = lines.map((line) => {
+      if (line.startsWith("## ")) {
+        return `<h3>${line.replace("## ", "")}</h3>`;
+      }
+      if (line.startsWith("### ")) {
+        return `<h4>${line.replace("### ", "")}</h4>`;
+      }
+      if (line.startsWith("# ")) {
+        return `<h2>${line.replace("# ", "")}</h2>`;
+      }
+      if (line.trim().startsWith("- ") || line.trim().startsWith("* ")) {
+        const bulletContent = line.trim().substring(2).replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+        return `<li>${bulletContent}</li>`;
+      }
+      if (line.trim() === "") {
+        return "";
+      }
+      const inlineContent = line.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      return `<p>${inlineContent}</p>`;
+    });
+
     const formattedSummary = `
       <hr />
       <h2>AI Summary</h2>
-      <p>${summary.replace(/\n/g, "<br/>")}</p>
+      ${htmlLines.filter((l) => l !== "").join("")}
     `;
     setContent((prev) => prev + formattedSummary);
     setSummary(null);
@@ -230,8 +259,8 @@ export default function TopicWorkspace({
                 <X size={20} />
               </button>
             </div>
-            <div className="max-h-[400px] overflow-y-auto p-6 text-slate-300 whitespace-pre-wrap leading-relaxed">
-              {summary}
+            <div className="max-h-[400px] overflow-y-auto p-6 text-slate-300 leading-relaxed space-y-1">
+              {formatMarkdown(summary)}
             </div>
             <div className="flex items-center justify-between border-t border-white/5 bg-slate-950/40 px-6 py-4">
               <button
@@ -274,8 +303,8 @@ export default function TopicWorkspace({
                 <X size={20} />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-6 text-slate-300 whitespace-pre-wrap leading-relaxed">
-              {explanation}
+            <div className="flex-1 overflow-y-auto p-6 text-slate-300 leading-relaxed space-y-1">
+              {formatMarkdown(explanation)}
             </div>
             <div className="border-t border-white/5 bg-slate-950/40 px-6 py-4 flex justify-end">
               <button
@@ -465,4 +494,80 @@ export default function TopicWorkspace({
       )}
     </main>
   );
+}
+
+function formatMarkdown(text: string) {
+  if (!text) return "";
+  
+  // 1. Remove redundant backslashes, escape quotes, or LaTeX style math syntax if they make it unreadable
+  let cleaned = text
+    .replace(/\\n/g, "\n")
+    .replace(/\\"/g, '"')
+    .replace(/\\/g, ""); // strip all other stray backslashes
+    
+  // 2. Parse basic markdown tags to styled JSX elements
+  const lines = cleaned.split("\n");
+  return lines.map((line, idx) => {
+    // Header 2
+    if (line.startsWith("## ")) {
+      return (
+        <h3 key={idx} className="mt-4 mb-2 text-lg font-bold text-white">
+          {line.replace("## ", "")}
+        </h3>
+      );
+    }
+    // Header 3
+    if (line.startsWith("### ")) {
+      return (
+        <h4 key={idx} className="mt-3 mb-1.5 text-base font-bold text-slate-200">
+          {line.replace("### ", "")}
+        </h4>
+      );
+    }
+    // Header 1
+    if (line.startsWith("# ")) {
+      return (
+        <h2 key={idx} className="mt-5 mb-3 text-xl font-bold text-white border-b border-white/5 pb-1">
+          {line.replace("# ", "")}
+        </h2>
+      );
+    }
+    // Bullet point
+    if (line.trim().startsWith("- ") || line.trim().startsWith("* ")) {
+      const bulletContent = line.trim().substring(2);
+      return (
+        <div key={idx} className="ml-4 my-1 flex items-start gap-2 text-slate-300">
+          <span className="text-indigo-400 mt-1.5 shrink-0 select-none">●</span>
+          <span>{parseInlineMarkdown(bulletContent)}</span>
+        </div>
+      );
+    }
+    // Normal paragraph
+    if (line.trim() === "") {
+      return <div key={idx} className="h-2" />;
+    }
+    return (
+      <p key={idx} className="my-1.5 text-slate-300">
+        {parseInlineMarkdown(line)}
+      </p>
+    );
+  });
+}
+
+function parseInlineMarkdown(text: string) {
+  // Replace bold **text** with JSX structure
+  const parts = text.split(/\*\*([^*]+)\*\*/g);
+  return parts.map((part, i) => {
+    if (i % 2 === 1) {
+      return <strong key={i} className="font-bold text-white">{part}</strong>;
+    }
+    // Replace inline code or formulas `text`
+    const subParts = part.split(/`([^`]+)`/g);
+    return subParts.map((subPart, j) => {
+      if (j % 2 === 1) {
+        return <code key={j} className="rounded bg-slate-800 px-1 py-0.5 font-mono text-xs text-indigo-300">{subPart}</code>;
+      }
+      return subPart;
+    });
+  });
 }

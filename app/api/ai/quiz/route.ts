@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { content } = await req.json();
+    const { content, count, difficulty } = await req.json();
 
     if (!content || content.trim().replace(/<[^>]*>/g, "").length === 0) {
       return NextResponse.json(
@@ -25,6 +25,9 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    const quizCount = typeof count === "number" ? count : 5;
+    const diffLevel = typeof difficulty === "string" ? difficulty : "intermediate";
 
     // Extract image URLs from note content
     const imgRegex = /<img[^>]+src=["']([^"']+)["']/g;
@@ -35,9 +38,9 @@ export async function POST(req: NextRequest) {
     }
 
     const systemPrompt =
-      "You are an expert exam designer. Generate 5 multiple-choice questions (MCQs) based on the user's study notes and any attached images. Ensure questions are challenging, clear, and test actual understanding. Include exactly 4 options per question, index the correct answer (0-3), and write a clear explanatory rationale. Your response must be a single raw JSON object matching the requested schema, with no markdown code blocks, preambles, or formatting.";
+      `You are an expert exam designer. Generate exactly ${quizCount} multiple-choice questions (MCQs) of ${diffLevel} difficulty based on the user's study notes and any attached images. Ensure questions are challenging, clear, and test actual understanding at a ${diffLevel} level. Include exactly 4 options per question, index the correct answer (0-3), and write a clear explanatory rationale. Your response must be a single raw JSON object matching the requested schema, with no markdown code blocks, preambles, or formatting.`;
 
-    const promptText = `Generate a quiz from these study notes and any attached images.
+    const promptText = `Generate a quiz of exactly ${quizCount} questions with a ${diffLevel} difficulty level from these study notes and any attached images.
 Output schema:
 {
   "questions": [

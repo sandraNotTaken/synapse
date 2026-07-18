@@ -11,7 +11,7 @@ export default function Logo({ showText = true }: LogoProps) {
       href="/"
       className="flex items-center gap-3 transition-opacity hover:opacity-80"
     >
-      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-cyan-400 shadow-lg shadow-indigo-500/20">
+      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-600 shadow-md shadow-indigo-500/15">
         <BrainCircuit className="h-6 w-6 text-white" />
       </div>
 

@@ -50,7 +50,7 @@ model Deck {
   createdAt DateTime @default(now())
 
   topicId String
-  topic   Topic  @relation("TopicDecks", fields: [topicId], references: [id])
+  topic   Topic  @relation("TopicDecks", fields: [topicId], references: [id], onDelete: Cascade)
 
   cards Card[]
 }
@@ -61,7 +61,7 @@ model Card {
   back      String
   createdAt DateTime @default(now())
   deckId    String
-  deck      Deck     @relation(fields: [deckId], references: [id])
+  deck      Deck     @relation(fields: [deckId], references: [id], onDelete: Cascade)
 }
 
 model Account {

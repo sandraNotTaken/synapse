@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { content, topicId } = await req.json();
+    const { content, topicId, count, difficulty } = await req.json();
 
     if (!content || content.trim().replace(/<[^>]*>/g, "").length === 0) {
       return NextResponse.json(
@@ -30,6 +30,9 @@ export async function POST(req: NextRequest) {
     if (!topicId) {
       return NextResponse.json({ error: "Topic ID is required" }, { status: 400 });
     }
+
+    const cardCount = typeof count === "number" ? count : 10;
+    const diffLevel = typeof difficulty === "string" ? difficulty : "intermediate";
 
     // Verify ownership of the topic
     const topic = await prisma.topic.findFirst({
@@ -56,9 +59,9 @@ export async function POST(req: NextRequest) {
     }
 
     const systemPrompt =
-      "You are an expert study aid generator. Extract the key terms, definitions, formulas, and concepts from the user's study notes and convert them into high-quality flashcards (Question/Front and Answer/Back pairs). Ensure questions are clear and answers are concise. Your response must be a single raw JSON object matching the requested schema, with no markdown code blocks, preambles, or formatting.";
+      `You are an expert study aid generator. Extract the key terms, definitions, formulas, and concepts from the user's study notes and convert them into exactly ${cardCount} high-quality flashcards (Question/Front and Answer/Back pairs). Ensure questions are clear and answers are concise. Target the question difficulty at a ${diffLevel} level. Your response must be a single raw JSON object matching the requested schema, with no markdown code blocks, preambles, or formatting.`;
 
-    const promptText = `Extract flashcards from these study notes and any attached images.
+    const promptText = `Extract exactly ${cardCount} flashcards of ${diffLevel} difficulty from these study notes and any attached images.
 Output schema:
 {
   "cards": [
