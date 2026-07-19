@@ -21,6 +21,9 @@ model User {
   dailyGoal     Int       @default(45) // Daily learning goal limit in minutes
   studySessions StudySession[]
   notifications Notification[]
+  xp            Int       @default(0)
+  level         Int       @default(1)
+  exams         PracticeExam[]
 }
 
 model Course {
@@ -45,6 +48,7 @@ model Topic {
   course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   decks Deck[] @relation("TopicDecks")
+  exams PracticeExam[]
 }
 
 model Deck {
@@ -66,6 +70,11 @@ model Card {
   createdAt  DateTime @default(now())
   deckId     String
   deck       Deck     @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  explanation String?
+  interval    Int      @default(1)    // review interval in days
+  easeFactor  Float    @default(2.5)  // SM-2 multiplier difficulty scale
+  repetitions Int      @default(0)    // consecutive review runs
+  dueDate     DateTime @default(now())
 }
 
 model Account {
@@ -117,6 +126,18 @@ model Notification {
   type      String   // "goal" | "streak" | "review" | "system"
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PracticeExam {
+  id        String   @id @default(cuid())
+  score     Int      // score percentage
+  feedback  String   // AI feedback text
+  questions String   // JSON array of questions & user answers
+  createdAt DateTime @default(now())
+  topicId   String
+  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
