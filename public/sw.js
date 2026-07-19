@@ -1,4 +1,4 @@
-const CACHE_NAME = "synapse-cache-v1";
+const CACHE_NAME = "synapse-cache-v2";
 const OFFLINE_URL = "/offline.html";
 
 const PRECACHE_ASSETS = [
@@ -37,48 +37,83 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Fetch Event: Network First with Cache Fallback for Pages & Cache First for Static Assets
+// Fetch Event: Smart Offline Caching for Next.js & NextAuth
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
   const url = new URL(event.request.url);
 
-  // Ignore API and Auth routes
-  if (url.pathname.startsWith("/api") || url.pathname.startsWith("/_next/webpack-hmr")) {
+  // Ignore webpack HMR dev sockets
+  if (url.pathname.startsWith("/_next/webpack-hmr")) {
+    return;
+  }
+
+  // Handle NextAuth session endpoint when offline
+  if (url.pathname.includes("/api/auth/session")) {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        return new Response(
+          JSON.stringify({
+            user: {
+              name: "Offline User",
+              email: "esewiosarugue@gmail.com",
+            },
+            expires: new Date(Date.now() + 86400000).toISOString(),
+          }),
+          {
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      })
+    );
     return;
   }
 
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
-        // Cache valid responses for static assets and HTML pages
-        if (networkResponse && networkResponse.status === 200 && networkResponse.type === "basic") {
+        // Cache successful GET responses for static files and pages
+        if (
+          networkResponse &&
+          networkResponse.status === 200 &&
+          (networkResponse.type === "basic" || networkResponse.type === "cors")
+        ) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
+            // Store clean URL without _rsc query params for easy matching
+            const cacheKey = url.searchParams.has("_rsc") ? url.pathname : event.request;
+            cache.put(cacheKey, responseToCache);
           });
         }
         return networkResponse;
       })
       .catch(async () => {
-        // Network failed (offline): Check cache
-        const cachedResponse = await caches.match(event.request);
-        if (cachedResponse) {
-          return cachedResponse;
-        }
+        // Network failed (offline mode active):
 
-        // If navigating to an HTML page while offline, return cached /dashboard or /offline.html
-        if (event.request.mode === "navigate") {
+        // 1. Try exact request match in cache
+        let cachedResponse = await caches.match(event.request);
+        if (cachedResponse) return cachedResponse;
+
+        // 2. Try URL pathname match (ignoring ?_rsc=... query params)
+        cachedResponse = await caches.match(url.pathname);
+        if (cachedResponse) return cachedResponse;
+
+        // 3. Fallback for client navigation or RSC requests
+        if (event.request.mode === "navigate" || url.searchParams.has("_rsc")) {
+          const dashboardPage = await caches.match("/dashboard");
+          if (dashboardPage) return dashboardPage;
+
           const offlinePage = await caches.match(OFFLINE_URL);
-          if (offlinePage) {
-            return offlinePage;
-          }
+          if (offlinePage) return offlinePage;
         }
 
-        return new Response("Offline content unavailable", {
+        // 4. Default fallback offline HTML
+        const fallback = await caches.match(OFFLINE_URL);
+        if (fallback) return fallback;
+
+        return new Response("Offline mode active. Connection lost.", {
           status: 503,
-          statusText: "Service Unavailable",
-          headers: new Headers({ "Content-Type": "text/plain" }),
+          headers: { "Content-Type": "text/plain" },
         });
       })
   );
