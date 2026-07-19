@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
+import { ThemeProvider } from "@/components/theme-provider";
+import OfflineProvider from "@/components/providers/offline-provider";
 
 import "./globals.css";
 
@@ -20,8 +22,12 @@ export default function RootLayout({
       className={`${GeistSans.className} ${GeistMono.variable}`}
       suppressHydrationWarning
     >
-      <body className="min-h-screen bg-background text-foreground antialiased">
-        {children}
+      <body className="min-h-screen text-foreground antialiased">
+        <OfflineProvider>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+            {children}
+          </ThemeProvider>
+        </OfflineProvider>
       </body>
     </html>
   );

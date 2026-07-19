@@ -4,6 +4,7 @@ import { Layers3, BookOpen, Brain, ChevronRight } from "lucide-react";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import DeleteButton from "@/components/dashboard/delete-button";
 
 export default async function DecksPage() {
   const session = await auth();
@@ -39,21 +40,21 @@ export default async function DecksPage() {
   return (
     <main className="space-y-8 px-4 py-8 sm:px-6 lg:px-8">
       <div>
-        <h1 className="text-4xl font-bold tracking-tight text-white">
+        <h1 className="text-4xl font-bold tracking-tight text-foreground">
           Flashcard Decks
         </h1>
-        <p className="mt-2 text-slate-400">
+        <p className="mt-2 text-muted-foreground">
           Manage, browse, and edit your custom flashcards and practice decks.
         </p>
       </div>
 
       {decks.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-white/10 bg-white/5 p-16 text-center">
-          <Layers3 className="mx-auto h-12 w-12 text-slate-500" />
-          <h3 className="mt-4 text-lg font-semibold text-white">
+        <div className="rounded-3xl border border-dashed border-border bg-card/40 p-16 text-center">
+          <Layers3 className="mx-auto h-12 w-12 text-muted-foreground" />
+          <h3 className="mt-4 text-lg font-semibold text-foreground">
             No decks available
           </h3>
-          <p className="mt-2 text-slate-400">
+          <p className="mt-2 text-muted-foreground">
             Decks are automatically generated when you use AI or create custom cards inside topics.
           </p>
           <div className="mt-6">
@@ -70,7 +71,7 @@ export default async function DecksPage() {
           {decks.map((deck) => (
             <div
               key={deck.id}
-              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-slate-900/40 p-6 transition-all hover:border-indigo-500/40 hover:bg-slate-900/80 hover:shadow-[0_20px_50px_-20px_rgba(99,102,241,0.25)]"
+              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border bg-card/40 p-6 transition-all hover:border-indigo-500/40 hover:bg-card/85 hover:shadow-[0_20px_50px_-20px_rgba(99,102,241,0.15)]"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -83,30 +84,33 @@ export default async function DecksPage() {
                   >
                     {deck.topic.course.title}
                   </span>
-                  <span className="flex items-center gap-1 text-xs text-slate-400">
-                    <Brain className="h-3 w-3 text-indigo-400" />
+                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Brain className="h-3 w-3 text-indigo-500 dark:text-indigo-400" />
                     {deck.cards.length} cards
                   </span>
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-bold text-white group-hover:text-indigo-400">
+                  <h3 className="text-lg font-bold text-foreground group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
                     {deck.title}
                   </h3>
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     Topic: {deck.topic.title}
                   </p>
                 </div>
               </div>
 
-              <div className="mt-6 flex items-center justify-between border-t border-white/5 pt-4">
+              <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
                 <Link
                   href={`/dashboard/study/review/${deck.id}`}
-                  className="text-sm font-semibold text-white hover:text-indigo-400 transition"
+                  className="text-sm font-semibold text-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition"
                 >
                   Start Review
                 </Link>
-                <ChevronRight className="h-4 w-4 text-slate-500 transition group-hover:translate-x-1 group-hover:text-white" />
+                <div className="flex items-center gap-2">
+                  <DeleteButton type="deck" id={deck.id} />
+                  <ChevronRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-1 group-hover:text-foreground shrink-0" />
+                </div>
               </div>
             </div>
           ))}

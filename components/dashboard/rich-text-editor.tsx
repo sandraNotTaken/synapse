@@ -23,7 +23,7 @@ export default function RichTextEditor({
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: "text-indigo-400 hover:text-indigo-300 underline font-medium cursor-pointer",
+          class: "text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 underline font-medium cursor-pointer",
         },
       }),
     ],
@@ -35,7 +35,7 @@ export default function RichTextEditor({
     editorProps: {
         attributes: {
             class:
-                "prose prose-invert prose-headings:text-white prose-p:text-slate-200 prose-strong:text-white max-w-none h-[550px] overflow-y-auto rounded-2xl border border-white/10 bg-slate-950/40 p-10 outline-none",
+                "prose dark:prose-invert prose-headings:text-foreground prose-p:text-foreground/90 prose-strong:text-foreground max-w-none h-[550px] overflow-y-auto rounded-2xl border border-border bg-card/45 p-10 outline-none",
         },
     },
 

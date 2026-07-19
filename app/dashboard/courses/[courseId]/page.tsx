@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react"
 import { NewTopicDialog } from "@/components/dashboard/new-topic-dialog";
+import DeleteButton from "@/components/dashboard/delete-button";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -44,13 +45,16 @@ export default async function CoursePage({ params }: PageProps) {
   return (
     <main className="space-y-8">
       <div className="flex items-start justify-between">
-        <div className="flex flex-col">
-          <h1 className="text-3xl font-bold text-white">
-            {course.title}
-          </h1>
+        <div className="flex flex-col space-y-2">
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-foreground">
+              {course.title}
+            </h1>
+            <DeleteButton type="course" id={course.id} />
+          </div>
 
           {course.description && (
-            <p className="mt-2 text-slate-400">
+            <p className="text-muted-foreground">
               {course.description}
             </p>
           )}
@@ -59,18 +63,18 @@ export default async function CoursePage({ params }: PageProps) {
         <NewTopicDialog courseId={course.id} />
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-        <h2 className="mb-4 text-xl font-semibold text-white">
+      <div className="rounded-2xl border border-border bg-card/60 p-6">
+        <h2 className="mb-4 text-xl font-semibold text-foreground">
           Topics
         </h2>
 
         {course.topics.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-indigo-500/40 p-10 text-center">
-            <h3 className="text-lg font-semibold text-white">
+            <h3 className="text-lg font-semibold text-foreground">
               Your course is ready
             </h3>
 
-            <p className="mt-2 text-slate-400">
+            <p className="mt-2 text-muted-foreground">
               Add your first topic to start studying.
             </p>
 
@@ -84,19 +88,22 @@ export default async function CoursePage({ params }: PageProps) {
               <Link
                 key={topic.id}
                 href={`/dashboard/topics/${topic.id}`}
-                className="group flex items-center justify-between rounded-2xl border border-white/10 bg-slate-900/60 p-5 transition hover:border-indigo-500/40 hover:bg-slate-900"
+                className="group flex items-center justify-between rounded-2xl border border-border bg-card/40 p-5 transition hover:border-indigo-500/40 hover:bg-card/75"
               >
                 <div>
-                  <h3 className="font-semibold text-white">
+                  <h3 className="font-semibold text-foreground">
                     {topic.title}
                   </h3>
 
-                  <p className="mt-1 text-sm text-slate-400">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     Start studying this topic
                   </p>
                 </div>
 
-                <ArrowRight className="h-5 w-5 text-slate-500 transition group-hover:translate-x-1 group-hover:text-white" />
+                <div className="flex items-center gap-2">
+                  <DeleteButton type="topic" id={topic.id} />
+                  <ArrowRight className="h-5 w-5 text-muted-foreground transition group-hover:translate-x-1 group-hover:text-foreground shrink-0" />
+                </div>
               </Link>
             ))}
           </div>

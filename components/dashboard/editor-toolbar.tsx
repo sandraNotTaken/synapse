@@ -31,7 +31,7 @@ export default function EditorToolbar({ editor }: Props) {
     `flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg transition ${
       active
         ? "bg-indigo-600 text-white"
-        : "bg-slate-800 text-slate-300 hover:bg-slate-700 disabled:opacity-50"
+        : "bg-muted text-muted-foreground hover:bg-muted-foreground/10 disabled:opacity-50"
     }`;
 
   async function handleFileUpload(
@@ -183,7 +183,7 @@ export default function EditorToolbar({ editor }: Props) {
         )}
       </button>
 
-      <div className="h-6 w-px bg-white/10 self-center mx-1" />
+      <div className="h-6 w-px bg-border self-center mx-1" />
 
       <button
         type="button"

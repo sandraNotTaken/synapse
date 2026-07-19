@@ -31,12 +31,12 @@ export default function CourseCarousel() {
           <p className="text-sm font-medium uppercase tracking-[0.35em] text-indigo-300/80">
             Continue watching
           </p>
-          <h2 className="mt-2 text-2xl font-semibold text-white">
+          <h2 className="mt-2 text-2xl font-semibold text-foreground">
             Your courses
           </h2>
         </div>
 
-        <a href="/dashboard/courses" className="text-sm font-medium text-slate-400 transition hover:text-white">
+        <a href="/dashboard/courses" className="text-sm font-medium text-muted-foreground transition hover:text-foreground">
           Browse all
         </a>
       </div>

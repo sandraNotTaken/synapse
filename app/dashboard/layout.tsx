@@ -40,8 +40,48 @@ export default async function DashboardLayout({
       }
     : undefined;
 
+  let dailyGoal = 45;
+  let studyMinutesToday = 0;
+
+  if (session?.user?.email) {
+    const userRecord = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: {
+        id: true,
+        dailyGoal: true,
+      },
+    });
+
+    if (userRecord) {
+      dailyGoal = userRecord.dailyGoal;
+
+      const startOfToday = new Date();
+      startOfToday.setUTCHours(0, 0, 0, 0);
+
+      const sessionsToday = await prisma.studySession.findMany({
+        where: {
+          userId: userRecord.id,
+          createdAt: {
+            gte: startOfToday,
+          },
+        },
+        select: {
+          duration: true,
+        },
+      });
+
+      const totalSecondsToday = sessionsToday.reduce((sum, s) => sum + s.duration, 0);
+      studyMinutesToday = Math.round(totalSecondsToday / 60);
+    }
+  }
+
   return (
-    <DashboardClientLayout courses={courses} user={user}>
+    <DashboardClientLayout
+      courses={courses}
+      user={user}
+      dailyGoal={dailyGoal}
+      studyMinutesToday={studyMinutesToday}
+    >
       {children}
     </DashboardClientLayout>
   );

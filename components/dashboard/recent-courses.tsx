@@ -22,27 +22,27 @@ export default function RecentCourses({
   courses,
 }: RecentCoursesProps) {
   return (
-    <Card className="border-white/10 bg-white/5 backdrop-blur-xl">
+    <Card className="border-border bg-card/60 backdrop-blur-xl">
       <CardContent className="space-y-6 p-6">
         <div className="flex items-center justify-between">
           <div>
-              <h2 className="text-xl font-semibold text-white">
+              <h2 className="text-xl font-semibold text-foreground">
                   Continue Learning
               </h2>
 
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-muted-foreground">
                   Pick up where you left off.
               </p>
           </div>
 
           <div className="flex items-center gap-3">
               <NewCourseDialog />
-              <BookOpen className="h-5 w-5 text-slate-400" />
+              <BookOpen className="h-5 w-5 text-muted-foreground" />
           </div>
         </div>
 
         {courses.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-white/10 py-10 text-center text-slate-400">
+          <div className="rounded-xl border border-dashed border-border py-10 text-center text-muted-foreground">
             No courses yet.
           </div>
         ) : (
@@ -51,7 +51,7 @@ export default function RecentCourses({
               <Link
                 key={course.id}
                 href={`/dashboard/courses/${course.id}`}
-                className="block rounded-2xl border border-white/10 bg-slate-900/60 p-5 transition-all hover:border-indigo-500/40 hover:bg-slate-900"
+                className="block rounded-2xl border border-border bg-card/40 p-5 transition-all hover:border-indigo-500/40 hover:bg-card/70"
               >
                 <div className="flex items-start justify-between">
                   <div className="space-y-3 flex-1">
@@ -63,16 +63,16 @@ export default function RecentCourses({
                         }}
                       />
 
-                      <h3 className="font-semibold text-white">
+                      <h3 className="font-semibold text-foreground">
                         {course.title}
                       </h3>
                     </div>
 
-                    <p className="text-sm text-slate-400">
+                    <p className="text-sm text-muted-foreground">
                       {course.description ?? "No description yet"}
                     </p>
 
-                    <div className="text-sm text-slate-400">
+                    <div className="text-sm text-muted-foreground">
                       {course.topics} Topics
                     </div>
 
@@ -82,11 +82,11 @@ export default function RecentCourses({
                     />
 
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-slate-400">
+                      <span className="text-xs text-muted-foreground">
                         {course.progress}% completed
                       </span>
 
-                      <span className="text-xs text-slate-500">
+                      <span className="text-xs text-muted-foreground">
                         Updated{" "}
                         {new Date(course.updatedAt).toLocaleDateString()}
                       </span>

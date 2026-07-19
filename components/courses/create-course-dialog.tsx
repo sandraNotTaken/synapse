@@ -22,15 +22,15 @@ export function CreateCourseDialog() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-md border border-white/10 bg-[#05070d] text-white">
+      <DialogContent className="max-w-md border border-border bg-card text-foreground">
         <DialogHeader>
-          <DialogTitle className="text-white">Create a course</DialogTitle>
-          <DialogDescription className="text-slate-400">
+          <DialogTitle className="text-foreground">Create a course</DialogTitle>
+          <DialogDescription className="text-muted-foreground">
             Add a new learning path and start building your personal study library.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
+        <div className="rounded-2xl border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
           Course creation is ready for the next step of your app flow.
         </div>
       </DialogContent>

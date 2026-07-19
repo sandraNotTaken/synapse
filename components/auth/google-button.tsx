@@ -27,17 +27,17 @@ export default function GoogleButton() {
         overflow-hidden
         rounded-2xl
         border
-        border-white/10
-        bg-zinc-900/80
+        border-border
+        bg-card/85
         px-6
         font-medium
-        text-white
+        text-foreground
         backdrop-blur-xl
         transition-all
         duration-300
         hover:-translate-y-1
         hover:border-indigo-500/40
-        hover:bg-zinc-800
+        hover:bg-muted
         hover:shadow-[0_20px_60px_rgba(99,102,241,0.25)]
         active:scale-[0.98]
       "

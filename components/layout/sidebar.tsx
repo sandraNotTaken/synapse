@@ -61,6 +61,8 @@ interface SidebarProps {
   collapsed?: boolean;
   mobileOpen?: boolean;
   onMobileClose?: () => void;
+  dailyGoal?: number;
+  studyMinutesToday?: number;
 }
 
 export default function Sidebar({
@@ -68,6 +70,8 @@ export default function Sidebar({
   collapsed = false,
   mobileOpen = false,
   onMobileClose,
+  dailyGoal = 45,
+  studyMinutesToday = 0,
 }: SidebarProps) {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
@@ -85,17 +89,17 @@ export default function Sidebar({
     return (
       <>
         {!isCollapsed && (
-          <div className="mb-6 rounded-2xl border border-white/5 bg-[#0b0e14]/40 p-4 backdrop-blur-sm">
+          <div className="mb-6 rounded-2xl border border-border bg-card/40 p-4 backdrop-blur-sm">
             <div className="flex items-center gap-2">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-500 dark:text-emerald-400">
                 Focus mode active
               </p>
             </div>
-            <p className="mt-2 text-xs text-slate-400 leading-relaxed">
+            <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
               Deep study space with zero clutter.
             </p>
           </div>
@@ -130,8 +134,8 @@ export default function Sidebar({
                     }}
                     className={`flex flex-1 items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-300 border-l-2 ${
                       active
-                        ? "bg-indigo-500/10 text-indigo-400 border-indigo-500 shadow-inner"
-                        : "text-slate-400 hover:bg-white/10 hover:text-white border-transparent"
+                        ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500 shadow-inner"
+                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground border-transparent"
                     } ${isCollapsed ? "justify-center px-0 h-11 w-11 flex-none mx-auto border-l-0" : ""}`}
                     title={isCollapsed ? link.title : undefined}
                   >
@@ -149,8 +153,8 @@ export default function Sidebar({
                       }}
                       className={`mr-1 rounded-xl p-2 transition cursor-pointer ${
                         active
-                          ? "text-white/70 hover:bg-white/10 hover:text-white"
-                          : "text-slate-400 hover:bg-white/10 hover:text-white"
+                          ? "text-foreground hover:bg-accent hover:text-accent-foreground"
+                          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                       }`}
                       aria-label="Toggle courses list"
                     >
@@ -165,7 +169,7 @@ export default function Sidebar({
 
                 {/* Render Course hierarchy if link is Courses and active or we want it visible */}
                 {link.href === "/dashboard/courses" && !isCollapsed && coursesExpanded && mounted && courses && courses.length > 0 && (
-                  <div className="ml-6 mt-2 space-y-3 border-l border-white/5 pl-4 py-1">
+                  <div className="ml-6 mt-2 space-y-3 border-l border-border pl-4 py-1">
                     {courses.map((course) => {
                       const isCourseActive = pathname === `/dashboard/courses/${course.id}`;
                       return (
@@ -178,7 +182,7 @@ export default function Sidebar({
                               }
                             }}
                             className={`flex items-center gap-2 text-xs font-semibold transition ${
-                              isCourseActive ? "text-white" : "text-slate-400 hover:text-white"
+                              isCourseActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
                             }`}
                           >
                             <span
@@ -204,8 +208,8 @@ export default function Sidebar({
                                     }}
                                     className={`block truncate pl-2 text-[11px] transition ${
                                       isTopicActive
-                                        ? "text-indigo-400 border-l border-indigo-500 font-medium"
-                                        : "text-slate-500 hover:text-slate-300 border-l border-transparent"
+                                        ? "text-indigo-600 dark:text-indigo-400 border-l border-indigo-500 font-medium"
+                                        : "text-muted-foreground hover:text-foreground border-l border-transparent"
                                     }`}
                                   >
                                     {topic.title}
@@ -225,13 +229,16 @@ export default function Sidebar({
         </nav>
 
         {!isCollapsed && (
-          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.15),_transparent_60%),linear-gradient(135deg,_#0f172a/70,_#020617/90)] p-5 shadow-[0_20px_50px_-25px_rgba(79,70,229,0.3)]">
-            <p className="text-xs uppercase tracking-wider text-indigo-300">Daily goal</p>
-            <h3 className="mt-2 text-3xl font-bold text-white">45 min</h3>
-            <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
-              <div className="h-full w-[65%] rounded-full bg-gradient-to-r from-indigo-500 to-cyan-400 shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
+          <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-indigo-500/10 to-indigo-600/5 p-5 shadow-[0_20px_50px_-25px_rgba(79,70,229,0.15)]">
+            <p className="text-xs uppercase tracking-wider text-indigo-600 dark:text-indigo-300">Daily goal</p>
+            <h3 className="mt-2 text-3xl font-bold text-foreground">{dailyGoal} min</h3>
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-cyan-400 shadow-[0_0_10px_rgba(99,102,241,0.5)] transition-all duration-500"
+                style={{ width: `${Math.min(100, Math.max(0, (studyMinutesToday / dailyGoal) * 100))}%` }}
+              />
             </div>
-            <p className="mt-3 text-xs text-slate-400">29 minutes completed</p>
+            <p className="mt-3 text-xs text-muted-foreground">{studyMinutesToday} minutes completed</p>
           </div>
         )}
       </>
@@ -245,7 +252,7 @@ export default function Sidebar({
         onClick={onMobileClose}
       />
 
-      <aside className={`fixed left-0 top-0 z-20 hidden h-screen flex-col border-r border-white/5 bg-[#05070d]/80 py-6 backdrop-blur-xl xl:flex transition-all duration-300 ${collapsed ? "w-20 px-3" : "w-72 px-4"}`}>
+      <aside className={`fixed left-0 top-0 z-20 hidden h-screen flex-col border-r border-sidebar-border bg-sidebar py-6 backdrop-blur-xl xl:flex transition-all duration-300 ${collapsed ? "w-20 px-3" : "w-72 px-4"}`}>
         <div className={`pb-6 transition-all duration-300 ${collapsed ? "px-1 flex justify-center" : "px-4"}`}>
           <Logo showText={!collapsed} />
         </div>
@@ -253,7 +260,7 @@ export default function Sidebar({
       </aside>
 
       <aside
-        className={`fixed left-0 top-0 z-50 flex h-screen w-72 max-w-[85vw] flex-col border-r border-white/5 bg-[#05070d]/95 p-6 backdrop-blur transition-transform duration-300 xl:hidden ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed left-0 top-0 z-50 flex h-screen w-72 max-w-[85vw] flex-col border-r border-sidebar-border bg-sidebar p-6 backdrop-blur transition-transform duration-300 xl:hidden ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div className="mb-6 flex items-center justify-between">
           <Logo />
@@ -261,7 +268,7 @@ export default function Sidebar({
             type="button"
             aria-label="Close menu"
             onClick={onMobileClose}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition hover:bg-white/10 cursor-pointer"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-muted/50 text-foreground transition hover:bg-muted cursor-pointer"
           >
             <X className="h-5 w-5" />
           </button>

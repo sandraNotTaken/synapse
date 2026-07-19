@@ -34,7 +34,7 @@ export default function DevLoginButton() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full rounded-xl border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none"
+          className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-indigo-500 focus:outline-none"
           placeholder="test@example.com"
         />
         <button

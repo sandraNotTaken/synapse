@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, RotateCw, CheckCircle, Award, Calendar, Flame, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, RotateCw, CheckCircle, Award, Calendar, Flame, AlertCircle, ChevronLeft, ChevronRight, WifiOff } from "lucide-react";
+import { logStudySession, updateCardConfidence } from "@/app/dashboard/study/actions";
+import { useOffline } from "@/components/providers/offline-provider";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
 interface Card {
   id: string;
@@ -27,13 +30,65 @@ export default function FlashcardReviewSession({
   const [isFlipped, setIsFlipped] = useState(false);
   const [ratings, setRatings] = useState<Record<string, string>>({});
   const [sessionCompleted, setSessionCompleted] = useState(false);
+  const startTimeRef = useRef<number>(Date.now());
+  const { isOffline, queueCardConfidence, queueStudySession } = useOffline();
+
+  useKeyboardShortcuts(
+    {
+      space: () => {
+        if (!sessionCompleted) {
+          setIsFlipped((prev) => !prev);
+        }
+      },
+      enter: () => {
+        if (!sessionCompleted) {
+          setIsFlipped((prev) => !prev);
+        }
+      },
+      "1": () => {
+        if (!sessionCompleted && isFlipped) {
+          handleRate("again");
+        }
+      },
+      "2": () => {
+        if (!sessionCompleted && isFlipped) {
+          handleRate("hard");
+        }
+      },
+      "3": () => {
+        if (!sessionCompleted && isFlipped) {
+          handleRate("good");
+        }
+      },
+      "4": () => {
+        if (!sessionCompleted && isFlipped) {
+          handleRate("easy");
+        }
+      },
+      arrowleft: () => {
+        if (!sessionCompleted) {
+          handlePrev();
+        }
+      },
+      arrowright: () => {
+        if (!sessionCompleted) {
+          if (isFlipped) {
+            handleNext();
+          } else {
+            setIsFlipped(true);
+          }
+        }
+      },
+    },
+    [sessionCompleted, isFlipped, currentIndex, cards]
+  );
 
   if (cards.length === 0) {
     return (
-      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-slate-900/50 p-8 text-center backdrop-blur-xl space-y-4">
-        <AlertCircle className="mx-auto h-12 w-12 text-slate-500" />
-        <h3 className="text-xl font-bold text-white">No Cards Found</h3>
-        <p className="text-sm text-slate-400">
+      <div className="w-full max-w-md rounded-3xl border border-border bg-card/50 p-8 text-center backdrop-blur-xl space-y-4">
+        <AlertCircle className="mx-auto h-12 w-12 text-muted-foreground" />
+        <h3 className="text-xl font-bold text-foreground">No Cards Found</h3>
+        <p className="text-sm text-muted-foreground">
           This deck has no cards. Go to a topic workspace to generate some flashcards with AI.
         </p>
         <Link
@@ -49,15 +104,35 @@ export default function FlashcardReviewSession({
 
   const currentCard = cards[currentIndex];
 
-  const handleRate = (rating: string) => {
+  const handleRate = async (rating: "again" | "hard" | "good" | "easy") => {
+    if (isOffline) {
+      queueCardConfidence(currentCard.id, rating);
+    } else {
+      try {
+        await updateCardConfidence(currentCard.id, rating);
+      } catch (err) {
+        console.error("Failed to update confidence:", err);
+      }
+    }
+
     setRatings((prev) => ({ ...prev, [currentCard.id]: rating }));
     setIsFlipped(false);
     
     // Timeout to let the flip animation return before showing the next card content
-    setTimeout(() => {
+    setTimeout(async () => {
       if (currentIndex < cards.length - 1) {
         setCurrentIndex((prev) => prev + 1);
       } else {
+        const elapsedSeconds = Math.round((Date.now() - startTimeRef.current) / 1000);
+        if (isOffline) {
+          queueStudySession(Math.max(1, elapsedSeconds));
+        } else {
+          try {
+            await logStudySession(Math.max(1, elapsedSeconds));
+          } catch (err) {
+            console.error("Failed to log study session:", err);
+          }
+        }
         setSessionCompleted(true);
       }
     }, 150);
@@ -91,17 +166,23 @@ export default function FlashcardReviewSession({
       <div className="flex items-center justify-between">
         <Link
           href="/dashboard/study"
-          className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-400 transition hover:text-white"
+          className="inline-flex cursor-pointer items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Hub
         </Link>
+        {isOffline && (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-500/10 px-2.5 py-1 text-xs font-semibold text-rose-500 border border-rose-500/30">
+            <WifiOff className="h-3.5 w-3.5 animate-pulse" />
+            Offline Mode
+          </span>
+        )}
       </div>
 
       {!sessionCompleted ? (
         <>
           {/* Progress bar */}
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
             <div
               className="h-full bg-gradient-to-r from-indigo-500 to-cyan-400 transition-all duration-300"
               style={{ width: `${((currentIndex + 1) / cards.length) * 100}%` }}
@@ -115,11 +196,11 @@ export default function FlashcardReviewSession({
                 className="h-2.5 w-2.5 rounded-full"
                 style={{ backgroundColor: courseColor }}
               />
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 {courseTitle}
               </span>
             </div>
-            <h2 className="mt-1 text-2xl font-bold text-white truncate">{deckTitle}</h2>
+            <h2 className="mt-1 text-2xl font-bold text-foreground truncate">{deckTitle}</h2>
           </div>
 
           {/* 3D Flip Card Container */}
@@ -138,21 +219,21 @@ export default function FlashcardReviewSession({
             >
               {/* CARD FRONT FACE */}
               <div
-                className="absolute inset-0 flex flex-col justify-between p-8 rounded-3xl border border-white/10 bg-[#0c0f17]/95 shadow-2xl backdrop-blur-xl"
+                className="absolute inset-0 flex flex-col justify-between p-8 rounded-3xl border border-border bg-card shadow-2xl backdrop-blur-xl"
                 style={{
                   backfaceVisibility: "hidden",
                   WebkitBackfaceVisibility: "hidden",
                 }}
               >
-                <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-400">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-500 dark:text-indigo-400">
                   Question / Term
                 </div>
                 <div className="flex-1 flex items-center justify-center text-center">
-                  <p className="text-xl md:text-2xl font-bold leading-relaxed text-white">
+                  <p className="text-xl md:text-2xl font-bold leading-relaxed text-foreground">
                     {currentCard.front}
                   </p>
                 </div>
-                <div className="flex items-center justify-center gap-2 text-xs text-slate-500 font-medium">
+                <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground font-medium">
                   <RotateCw className="h-3.5 w-3.5 animate-pulse" />
                   Click Card to Reveal Answer
                 </div>
@@ -160,22 +241,22 @@ export default function FlashcardReviewSession({
 
               {/* CARD BACK FACE (Rotated 180 degrees initially) */}
               <div
-                className="absolute inset-0 flex flex-col justify-between p-8 rounded-3xl border border-white/10 bg-[#0c0f17]/95 shadow-2xl backdrop-blur-xl"
+                className="absolute inset-0 flex flex-col justify-between p-8 rounded-3xl border border-border bg-card shadow-2xl backdrop-blur-xl"
                 style={{
                   backfaceVisibility: "hidden",
                   WebkitBackfaceVisibility: "hidden",
                   transform: "rotateY(180deg)",
                 }}
               >
-                <div className="text-[10px] font-bold uppercase tracking-widest text-cyan-400">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-cyan-600 dark:text-cyan-400">
                   Answer / Explanation
                 </div>
                 <div className="flex-1 flex items-center justify-center text-center overflow-y-auto no-scrollbar py-2">
-                  <p className="text-lg md:text-xl font-medium leading-relaxed text-slate-200">
+                  <p className="text-lg md:text-xl font-medium leading-relaxed text-foreground">
                     {currentCard.back}
                   </p>
                 </div>
-                <div className="flex items-center justify-center gap-2 text-xs text-slate-500 font-medium">
+                <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground font-medium">
                   <RotateCw className="h-3.5 w-3.5" />
                   Click to See Question Again
                 </div>
@@ -184,18 +265,18 @@ export default function FlashcardReviewSession({
           </div>
 
           {/* Manual navigation controls */}
-          <div className="flex items-center justify-between gap-4 mt-2 mb-4 bg-slate-900/30 p-2.5 rounded-2xl border border-white/5">
+          <div className="flex items-center justify-between gap-4 mt-2 mb-4 bg-muted/30 p-2.5 rounded-2xl border border-border">
             <button
               type="button"
               onClick={handlePrev}
               disabled={currentIndex === 0}
-              className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-xs font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:pointer-events-none"
+              className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-muted hover:text-foreground disabled:opacity-30 disabled:pointer-events-none"
             >
               <ChevronLeft className="h-4 w-4" />
               Prev
             </button>
             
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
               Card {currentIndex + 1} of {cards.length}
             </span>
             
@@ -203,7 +284,7 @@ export default function FlashcardReviewSession({
               type="button"
               onClick={handleNext}
               disabled={currentIndex === cards.length - 1}
-              className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-xs font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:pointer-events-none"
+              className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-muted hover:text-foreground disabled:opacity-30 disabled:pointer-events-none"
             >
               Next
               <ChevronRight className="h-4 w-4" />
@@ -217,7 +298,7 @@ export default function FlashcardReviewSession({
                 <button
                   type="button"
                   onClick={() => handleRate("again")}
-                  className="flex flex-col items-center justify-center rounded-2xl border border-rose-500/20 bg-rose-500/5 py-3 cursor-pointer transition hover:bg-rose-500/20 text-rose-400 hover:text-white"
+                  className="flex flex-col items-center justify-center rounded-2xl border border-rose-500/20 bg-rose-500/5 py-3 cursor-pointer transition hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 dark:hover:text-white"
                 >
                   <span className="text-sm font-bold">Again</span>
                   <span className="text-[9px] mt-0.5 opacity-70">&lt;1m</span>
@@ -225,7 +306,7 @@ export default function FlashcardReviewSession({
                 <button
                   type="button"
                   onClick={() => handleRate("hard")}
-                  className="flex flex-col items-center justify-center rounded-2xl border border-orange-500/20 bg-orange-500/5 py-3 cursor-pointer transition hover:bg-orange-500/20 text-orange-400 hover:text-white"
+                  className="flex flex-col items-center justify-center rounded-2xl border border-orange-500/20 bg-orange-500/5 py-3 cursor-pointer transition hover:bg-orange-500/20 text-orange-600 dark:text-orange-400 dark:hover:text-white"
                 >
                   <span className="text-sm font-bold">Hard</span>
                   <span className="text-[9px] mt-0.5 opacity-70">10m</span>
@@ -233,7 +314,7 @@ export default function FlashcardReviewSession({
                 <button
                   type="button"
                   onClick={() => handleRate("good")}
-                  className="flex flex-col items-center justify-center rounded-2xl border border-indigo-500/20 bg-indigo-500/5 py-3 cursor-pointer transition hover:bg-indigo-500/20 text-indigo-400 hover:text-white"
+                  className="flex flex-col items-center justify-center rounded-2xl border border-indigo-500/20 bg-indigo-500/5 py-3 cursor-pointer transition hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 dark:hover:text-white"
                 >
                   <span className="text-sm font-bold">Good</span>
                   <span className="text-[9px] mt-0.5 opacity-70">1d</span>
@@ -241,7 +322,7 @@ export default function FlashcardReviewSession({
                 <button
                   type="button"
                   onClick={() => handleRate("easy")}
-                  className="flex flex-col items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/5 py-3 cursor-pointer transition hover:bg-emerald-500/20 text-emerald-400 hover:text-white"
+                  className="flex flex-col items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/5 py-3 cursor-pointer transition hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 dark:hover:text-white"
                 >
                   <span className="text-sm font-bold">Easy</span>
                   <span className="text-[9px] mt-0.5 opacity-70">3d</span>
@@ -261,48 +342,48 @@ export default function FlashcardReviewSession({
         </>
       ) : (
         /* Completion Panel */
-        <div className="rounded-3xl border border-white/10 bg-slate-900/60 p-8 text-center backdrop-blur-xl space-y-6">
+        <div className="rounded-3xl border border-border bg-card/60 p-8 text-center backdrop-blur-xl space-y-6">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-cyan-400 shadow-lg text-white">
             <Award className="h-8 w-8" />
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-white">Session Completed!</h2>
-            <p className="text-sm text-slate-400 leading-relaxed">
+            <h2 className="text-2xl font-bold text-foreground">Session Completed!</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
               Fantastic job. You completed the review session for <strong>{deckTitle}</strong>.
             </p>
           </div>
 
           {/* Stats recap grid */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-2xl border border-white/5 bg-slate-950/40 p-4">
-              <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Reviewed</p>
-              <h3 className="text-2xl font-black text-white mt-1">{cards.length} Cards</h3>
+            <div className="rounded-2xl border border-border bg-muted/40 p-4">
+              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Reviewed</p>
+              <h3 className="text-2xl font-black text-foreground mt-1">{cards.length} Cards</h3>
             </div>
-            <div className="rounded-2xl border border-white/5 bg-slate-950/40 p-4">
-              <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Spaced Mastery</p>
-              <h3 className="text-2xl font-black text-emerald-400 mt-1">
+            <div className="rounded-2xl border border-border bg-muted/40 p-4">
+              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Spaced Mastery</p>
+              <h3 className="text-2xl font-black text-emerald-500 dark:text-emerald-400 mt-1">
                 {Math.round(((getRatingCount("good") + getRatingCount("easy")) / cards.length) * 100)}%
               </h3>
             </div>
           </div>
 
           {/* Detailed breakdown */}
-          <div className="rounded-2xl border border-white/5 bg-slate-950/20 p-4 space-y-2 text-left text-xs">
-            <h4 className="font-bold text-slate-400 uppercase tracking-wider pb-1.5 border-b border-white/5">Breakdown</h4>
-            <div className="flex justify-between text-rose-400">
+          <div className="rounded-2xl border border-border bg-muted/20 p-4 space-y-2 text-left text-xs">
+            <h4 className="font-bold text-muted-foreground uppercase tracking-wider pb-1.5 border-b border-border">Breakdown</h4>
+            <div className="flex justify-between text-rose-500 dark:text-rose-400">
               <span>Again (Forgotten / Forgot)</span>
               <span>{getRatingCount("again")}</span>
             </div>
-            <div className="flex justify-between text-orange-400">
+            <div className="flex justify-between text-orange-500 dark:text-orange-400">
               <span>Hard (Requires Practice)</span>
               <span>{getRatingCount("hard")}</span>
             </div>
-            <div className="flex justify-between text-indigo-400">
+            <div className="flex justify-between text-indigo-500 dark:text-indigo-400">
               <span>Good (Recalled)</span>
               <span>{getRatingCount("good")}</span>
             </div>
-            <div className="flex justify-between text-emerald-400">
+            <div className="flex justify-between text-emerald-500 dark:text-emerald-400">
               <span>Easy (Instantly Recalled)</span>
               <span>{getRatingCount("easy")}</span>
             </div>
@@ -317,7 +398,7 @@ export default function FlashcardReviewSession({
                 setRatings({});
                 setSessionCompleted(false);
               }}
-              className="flex-1 cursor-pointer rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-semibold text-slate-300 hover:bg-white/10 hover:text-white transition"
+              className="flex-1 cursor-pointer rounded-xl border border-border bg-card py-3 text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-foreground transition"
             >
               Restart
             </button>
