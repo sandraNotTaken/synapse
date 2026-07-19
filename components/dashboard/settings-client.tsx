@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useTransition } from "react";
-import { User, Settings, ShieldAlert, KeyRound, Check, AlertTriangle, Loader2 } from "lucide-react";
+import { User, Settings, ShieldAlert, KeyRound, Check, AlertTriangle, Loader2, BarChart3, Award, Flame, Zap, Brain, Sparkles } from "lucide-react";
 import { updateUserProfile, resetAccountData } from "@/app/dashboard/settings/user-actions";
 import { useRouter } from "next/navigation";
 import ThemeToggle from "./theme-toggle";
@@ -12,15 +12,19 @@ interface SettingsClientProps {
   email: string;
   initials: string;
   currentGoal: number;
+  xp?: number;
+  level?: number;
 }
 
-type TabType = "profile" | "learning" | "shortcuts" | "privacy";
+type TabType = "profile" | "learning" | "shortcuts" | "privacy" | "analytics";
 
 export default function SettingsClient({
   initialName,
   email,
   initials,
   currentGoal,
+  xp = 120,
+  level = 2,
 }: SettingsClientProps) {
   const [activeTab, setActiveTab] = useState<TabType>("profile");
   const [name, setName] = useState(initialName);
@@ -88,7 +92,19 @@ export default function SettingsClient({
           }`}
         >
           <User className="h-4 w-4" />
-          Profile Settings
+          Profile & Badges
+        </button>
+
+        <button
+          onClick={() => setActiveTab("analytics")}
+          className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition cursor-pointer text-left ${
+            activeTab === "analytics"
+              ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/10"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+          }`}
+        >
+          <BarChart3 className="h-4 w-4" />
+          Analytics & Charts
         </button>
 
         <button
@@ -133,23 +149,50 @@ export default function SettingsClient({
         {/* Profile tab */}
         {activeTab === "profile" && (
           <div className="rounded-3xl border border-border bg-card/60 p-6 backdrop-blur-xl space-y-6">
-            <div>
-              <h2 className="text-xl font-bold text-foreground">Profile Settings</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                Customize your public display name and account specifics.
-              </p>
-            </div>
-
-            {/* Avatar display */}
-            <div className="flex items-center gap-4 border-b border-border pb-6">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/10 text-xl font-bold text-indigo-600 dark:text-indigo-400 border border-indigo-500/30">
-                {initials}
-              </div>
               <div>
-                <h4 className="font-bold text-foreground">{name}</h4>
-                <p className="text-xs text-muted-foreground mt-0.5">{email}</p>
+                <h2 className="text-xl font-bold text-foreground">Profile Settings</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Customize your public display name and view your gamification rank.
+                </p>
               </div>
-            </div>
+
+              {/* Avatar & XP Level */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-6">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/10 text-xl font-bold text-indigo-600 dark:text-indigo-400 border border-indigo-500/30">
+                    {initials}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-foreground">{name}</h4>
+                    <p className="text-xs text-muted-foreground mt-0.5">{email}</p>
+                  </div>
+                </div>
+
+                {/* Level badge */}
+                <div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/10 p-3.5 flex items-center gap-3">
+                  <div className="rounded-xl bg-indigo-600 p-2 text-white shadow-md shadow-indigo-600/20">
+                    <Zap className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-indigo-600 dark:text-indigo-400">Level {level} Thinker</span>
+                    <h5 className="text-sm font-black text-foreground">{xp} Total XP</h5>
+                  </div>
+                </div>
+              </div>
+
+              {/* XP Progress bar */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs font-semibold">
+                  <span className="text-muted-foreground">XP Progress to Level {level + 1}</span>
+                  <span className="text-indigo-600 dark:text-indigo-400">{xp % 100} / 100 XP</span>
+                </div>
+                <div className="h-2.5 w-full rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full bg-indigo-600 transition-all duration-500 rounded-full"
+                    style={{ width: `${Math.min(100, xp % 100)}%` }}
+                  />
+                </div>
+              </div>
 
             {/* Profile form */}
             <form onSubmit={handleUpdateProfile} className="space-y-4">
@@ -184,6 +227,83 @@ export default function SettingsClient({
                 </button>
               </div>
             </form>
+
+            {/* Achievements Badges */}
+            <div className="border-t border-border pt-6 space-y-4">
+              <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <Award className="h-4 w-4 text-indigo-500" />
+                Achievements & Badges
+              </h4>
+
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/10 p-3.5 text-center space-y-1">
+                  <Flame className="h-5 w-5 mx-auto text-orange-500 animate-pulse" />
+                  <h5 className="text-xs font-bold text-foreground">Streak Pioneer</h5>
+                  <p className="text-[10px] text-muted-foreground">Active learner</p>
+                </div>
+                <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-center space-y-1">
+                  <Brain className="h-5 w-5 mx-auto text-emerald-500" />
+                  <h5 className="text-xs font-bold text-foreground">SM-2 Scholar</h5>
+                  <p className="text-[10px] text-muted-foreground">Spaced repetition</p>
+                </div>
+                <div className="rounded-2xl border border-cyan-500/30 bg-cyan-500/10 p-3.5 text-center space-y-1">
+                  <Sparkles className="h-5 w-5 mx-auto text-cyan-500" />
+                  <h5 className="text-xs font-bold text-foreground">AI Power User</h5>
+                  <p className="text-[10px] text-muted-foreground">Generated flashcards</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Analytics & Charts Tab */}
+        {activeTab === "analytics" && (
+          <div className="space-y-6">
+            <div className="rounded-3xl border border-border bg-card/60 p-6 backdrop-blur-xl space-y-6">
+              <div>
+                <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5 text-indigo-500" />
+                  Learning Focus Analytics
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Weekly distribution of active study minutes across learning sessions.
+                </p>
+              </div>
+
+              {/* Weekly SVG Chart */}
+              <div className="rounded-2xl border border-border bg-muted/20 p-6 space-y-4">
+                <div className="flex justify-between items-center text-xs text-muted-foreground font-semibold">
+                  <span>Weekly Minutes Studied</span>
+                  <span className="text-indigo-600 dark:text-indigo-400 font-bold">Goal: {currentGoal}m / day</span>
+                </div>
+
+                <div className="h-44 w-full flex items-end justify-between gap-3 pt-6 pb-2 border-b border-border">
+                  {[
+                    { day: "Mon", mins: 30 },
+                    { day: "Tue", mins: 45 },
+                    { day: "Wed", mins: 60 },
+                    { day: "Thu", mins: 25 },
+                    { day: "Fri", mins: 40 },
+                    { day: "Sat", mins: 50 },
+                    { day: "Sun", mins: 65 },
+                  ].map((bar, idx) => {
+                    const heightPercent = Math.min(100, Math.round((bar.mins / 80) * 100));
+                    return (
+                      <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+                        <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 opacity-0 group-hover:opacity-100 transition">
+                          {bar.mins}m
+                        </span>
+                        <div
+                          className="w-full bg-indigo-600 rounded-t-xl transition-all duration-500 hover:bg-indigo-500"
+                          style={{ height: `${heightPercent}%` }}
+                        />
+                        <span className="text-[10px] text-muted-foreground font-semibold">{bar.day}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
           </div>
         )}
 

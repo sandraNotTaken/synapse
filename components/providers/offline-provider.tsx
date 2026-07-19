@@ -32,6 +32,15 @@ export default function OfflineProvider({ children }: { children: React.ReactNod
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    // Register Service Worker for offline browser caching & PWA support
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").then((reg) => {
+        console.log("Service Worker registered with scope:", reg.scope);
+      }).catch((err) => {
+        console.error("Service Worker registration error:", err);
+      });
+    }
+
     // Set initial state
     setIsOffline(!navigator.onLine);
 

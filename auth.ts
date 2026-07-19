@@ -49,6 +49,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     strategy: "jwt",
   },
 
+  callbacks: {
+    async session({ session, token }) {
+      if (session?.user?.email) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: session.user.email },
+          select: { name: true, image: true },
+        });
+        if (dbUser?.name) {
+          session.user.name = dbUser.name;
+        }
+        if (dbUser?.image) {
+          session.user.image = dbUser.image;
+        }
+      }
+      return session;
+    },
+  },
+
   pages: {
     signIn: "/login",
   },

@@ -9,6 +9,8 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Synapse",
   description: "Build knowledge that sticks.",
+  manifest: "/manifest.json",
+  themeColor: "#4f46e5",
 };
 
 export default function RootLayout({

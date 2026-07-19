@@ -23,9 +23,11 @@ export default async function SettingsPage() {
 
   const userRecord = await prisma.user.findUnique({
     where: { email: session.user.email },
-    select: { dailyGoal: true },
+    select: { dailyGoal: true, xp: true, level: true },
   });
   const currentGoal = userRecord?.dailyGoal ?? 45;
+  const xp = userRecord?.xp ?? 0;
+  const level = userRecord?.level ?? 1;
 
   return (
     <main className="mx-auto max-w-5xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
@@ -60,6 +62,8 @@ export default async function SettingsPage() {
         email={email}
         initials={initials}
         currentGoal={currentGoal}
+        xp={xp}
+        level={level}
       />
     </main>
   );

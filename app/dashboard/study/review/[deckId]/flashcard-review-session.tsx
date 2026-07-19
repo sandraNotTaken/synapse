@@ -11,6 +11,7 @@ interface Card {
   id: string;
   front: string;
   back: string;
+  explanation?: string | null;
 }
 
 interface FlashcardReviewSessionProps {
@@ -354,38 +355,96 @@ export default function FlashcardReviewSession({
             </p>
           </div>
 
-          {/* Stats recap grid */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-2xl border border-border bg-muted/40 p-4">
-              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Reviewed</p>
-              <h3 className="text-2xl font-black text-foreground mt-1">{cards.length} Cards</h3>
+          {/* Passed vs Failed Stats Grid */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-3.5 text-center">
+              <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Passed</p>
+              <h3 className="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
+                {getRatingCount("good") + getRatingCount("easy")}
+              </h3>
             </div>
-            <div className="rounded-2xl border border-border bg-muted/40 p-4">
-              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Spaced Mastery</p>
-              <h3 className="text-2xl font-black text-emerald-500 dark:text-emerald-400 mt-1">
-                {Math.round(((getRatingCount("good") + getRatingCount("easy")) / cards.length) * 100)}%
+            <div className="rounded-2xl border border-rose-500/20 bg-rose-500/10 p-3.5 text-center">
+              <p className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">Failed</p>
+              <h3 className="text-xl font-black text-rose-600 dark:text-rose-400 mt-1">
+                {getRatingCount("again") + getRatingCount("hard")}
+              </h3>
+            </div>
+            <div className="rounded-2xl border border-indigo-500/20 bg-indigo-500/10 p-3.5 text-center">
+              <p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Mastery</p>
+              <h3 className="text-xl font-black text-indigo-600 dark:text-indigo-400 mt-1">
+                {cards.length > 0 ? Math.round(((getRatingCount("good") + getRatingCount("easy")) / cards.length) * 100) : 0}%
               </h3>
             </div>
           </div>
 
-          {/* Detailed breakdown */}
+          {/* Rating Breakdown Badges */}
           <div className="rounded-2xl border border-border bg-muted/20 p-4 space-y-2 text-left text-xs">
-            <h4 className="font-bold text-muted-foreground uppercase tracking-wider pb-1.5 border-b border-border">Breakdown</h4>
-            <div className="flex justify-between text-rose-500 dark:text-rose-400">
-              <span>Again (Forgotten / Forgot)</span>
-              <span>{getRatingCount("again")}</span>
+            <h4 className="font-bold text-muted-foreground uppercase tracking-wider pb-1.5 border-b border-border">Rating Breakdown</h4>
+            <div className="grid grid-cols-2 gap-2 text-left">
+              <div className="flex justify-between text-rose-600 dark:text-rose-400 font-medium">
+                <span>Again (Forgot)</span>
+                <span className="font-bold">{getRatingCount("again")}</span>
+              </div>
+              <div className="flex justify-between text-orange-600 dark:text-orange-400 font-medium">
+                <span>Hard (Struggled)</span>
+                <span className="font-bold">{getRatingCount("hard")}</span>
+              </div>
+              <div className="flex justify-between text-indigo-600 dark:text-indigo-400 font-medium">
+                <span>Good (Recalled)</span>
+                <span className="font-bold">{getRatingCount("good")}</span>
+              </div>
+              <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-medium">
+                <span>Easy (Mastered)</span>
+                <span className="font-bold">{getRatingCount("easy")}</span>
+              </div>
             </div>
-            <div className="flex justify-between text-orange-500 dark:text-orange-400">
-              <span>Hard (Requires Practice)</span>
-              <span>{getRatingCount("hard")}</span>
-            </div>
-            <div className="flex justify-between text-indigo-500 dark:text-indigo-400">
-              <span>Good (Recalled)</span>
-              <span>{getRatingCount("good")}</span>
-            </div>
-            <div className="flex justify-between text-emerald-500 dark:text-emerald-400">
-              <span>Easy (Instantly Recalled)</span>
-              <span>{getRatingCount("easy")}</span>
+          </div>
+
+          {/* Card-by-Card Explanations List */}
+          <div className="space-y-3 text-left">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              Review Results & Concept Explanations
+            </h4>
+            <div className="max-h-64 overflow-y-auto space-y-3 pr-1 no-scrollbar">
+              {cards.map((card, idx) => {
+                const userRating = ratings[card.id] || "unrated";
+                const isPass = userRating === "good" || userRating === "easy";
+
+                return (
+                  <div
+                    key={card.id || idx}
+                    className={`rounded-2xl border p-4 space-y-2 text-xs transition ${
+                      isPass
+                        ? "border-emerald-500/20 bg-emerald-500/[0.03]"
+                        : "border-rose-500/20 bg-rose-500/[0.03]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between font-semibold">
+                      <span className="text-foreground">Card #{idx + 1}</span>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[10px] uppercase font-bold border ${
+                          isPass
+                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                            : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30"
+                        }`}
+                      >
+                        {isPass ? `Passed (${userRating})` : `Failed (${userRating})`}
+                      </span>
+                    </div>
+
+                    <div className="space-y-1">
+                      <p className="font-bold text-foreground">Q: {card.front}</p>
+                      <p className="text-muted-foreground">A: {card.back}</p>
+                    </div>
+
+                    {/* Explanation */}
+                    <div className="mt-2 rounded-xl bg-card/60 p-2.5 border border-border text-[11px] text-muted-foreground">
+                      <span className="font-bold text-foreground block mb-0.5">Explanation:</span>
+                      {card.explanation || card.back || "Concept reviewed during active study session."}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 

@@ -5,6 +5,8 @@ import Link from "next/link";
 import { ArrowLeft, Sparkles, Brain, FileText, GraduationCap, Copy, Check, Loader2, X, AlertTriangle } from "lucide-react";
 import TopicEditor from "./topic-editor";
 import AIToolbar from "./ai-toolbar";
+import ExamPanel from "./exam-panel";
+import FeynmanPanel from "./feynman-panel";
 import { logStudySession } from "@/app/dashboard/study/actions";
 
 interface TopicWorkspaceProps {
@@ -254,6 +256,16 @@ export default function TopicWorkspace({
             onQuiz={triggerQuiz}
             loading={loadingAction}
           />
+
+          {/* AI Practice Exam Panel */}
+          <div className="rounded-3xl border border-border bg-card/60 p-6 backdrop-blur-xl">
+            <ExamPanel topicId={topicId} />
+          </div>
+
+          {/* Feynman Technique Evaluation Panel */}
+          <div className="rounded-3xl border border-border bg-card/60 p-6 backdrop-blur-xl">
+            <FeynmanPanel topicTitle={topicTitle} />
+          </div>
         </div>
       </div>
 

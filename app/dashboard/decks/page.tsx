@@ -5,6 +5,7 @@ import { Layers3, BookOpen, Brain, ChevronRight } from "lucide-react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import DeleteButton from "@/components/dashboard/delete-button";
+import ExportAnkiButton from "@/components/dashboard/export-anki-button";
 
 export default async function DecksPage() {
   const session = await auth();
@@ -107,7 +108,8 @@ export default async function DecksPage() {
                 >
                   Start Review
                 </Link>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
+                  <ExportAnkiButton deckId={deck.id} />
                   <DeleteButton type="deck" id={deck.id} />
                   <ChevronRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-1 group-hover:text-foreground shrink-0" />
                 </div>
