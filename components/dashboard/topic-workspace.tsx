@@ -2,11 +2,12 @@
 
 import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Sparkles, Brain, FileText, GraduationCap, Copy, Check, Loader2, X, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Sparkles, Brain, FileText, GraduationCap, Copy, Check, Loader2, X, AlertTriangle, Upload } from "lucide-react";
 import TopicEditor from "./topic-editor";
 import AIToolbar from "./ai-toolbar";
 import ExamPanel from "./exam-panel";
 import FeynmanPanel from "./feynman-panel";
+import DocumentScannerModal from "./document-scanner-modal";
 import { logStudySession } from "@/app/dashboard/study/actions";
 
 interface TopicWorkspaceProps {
@@ -32,6 +33,7 @@ export default function TopicWorkspace({
   courseTitle,
 }: TopicWorkspaceProps) {
   const [content, setContent] = useState(initialContent);
+  const [scannerOpen, setScannerOpen] = useState(false);
 
   // Log study session duration periodically while active in workspace
   useEffect(() => {
@@ -229,13 +231,23 @@ export default function TopicWorkspace({
       <div className="grid gap-8 lg:grid-cols-3">
         {/* Left Notes column */}
         <div className="lg:col-span-2 space-y-6">
-          <div>
-            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-              {topicTitle}
-            </h1>
-            <p className="mt-2 text-muted-foreground">
-              Write notes, organize your ideas, and use AI to study faster.
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
+                {topicTitle}
+              </h1>
+              <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                Write notes, organize your ideas, and use AI to study faster.
+              </p>
+            </div>
+
+            <button
+              onClick={() => setScannerOpen(true)}
+              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/20 transition"
+            >
+              <Upload className="h-4 w-4" />
+              <span>Scan PDF / Image Notes</span>
+            </button>
           </div>
 
           <div className="rounded-3xl border border-border bg-card/80 p-8 shadow-2xl backdrop-blur-sm">
@@ -532,6 +544,13 @@ export default function TopicWorkspace({
           </div>
         </div>
       )}
+
+      {/* PDF / Image Document Scanner Modal */}
+      <DocumentScannerModal
+        isOpen={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onExtractedText={(text) => setContent((prev) => prev + "\n" + text)}
+      />
     </main>
   );
 }

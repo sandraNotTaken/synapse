@@ -3,6 +3,7 @@ import { createGroq } from "@ai-sdk/groq";
 import { generateText } from "ai";
 import { promises as fs } from "fs";
 import { join } from "path";
+import { auth } from "@/auth";
 
 const groq = createGroq({
   apiKey: process.env.GROQ_API_KEY,
@@ -10,6 +11,11 @@ const groq = createGroq({
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { content } = await req.json();
 
     if (!content || content.trim().replace(/<[^>]*>/g, "").length === 0) {

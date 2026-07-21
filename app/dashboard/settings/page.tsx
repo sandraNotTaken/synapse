@@ -4,6 +4,7 @@ import { ShieldCheck, LogOut } from "lucide-react";
 import { auth, signOut } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import SettingsClient from "@/components/dashboard/settings-client";
+import ExportDataButton from "@/components/dashboard/export-data-button";
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -34,26 +35,30 @@ export default async function SettingsPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight text-foreground font-heading">Settings</h1>
-          <p className="mt-2 text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">Settings</h1>
+          <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
             Manage your personal profile, set study goals, review hotkeys, and clear learning metrics.
           </p>
         </div>
 
-        <form
-          action={async () => {
-            "use server";
-            await signOut({ redirectTo: "/login" });
-          }}
-        >
-          <button
-            type="submit"
-            className="flex items-center justify-center gap-2 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-500/20 hover:border-red-500/40 transition cursor-pointer"
+        <div className="flex items-center gap-3">
+          <ExportDataButton />
+
+          <form
+            action={async () => {
+              "use server";
+              await signOut({ redirectTo: "/login" });
+            }}
           >
-            <LogOut className="h-4 w-4" />
-            Sign Out
-          </button>
-        </form>
+            <button
+              type="submit"
+              className="flex items-center justify-center gap-2 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-2.5 text-xs font-semibold text-red-500 hover:bg-red-500/20 hover:border-red-500/40 transition cursor-pointer"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign Out
+            </button>
+          </form>
+        </div>
       </div>
 
       {/* Interactive Tabs Content */}

@@ -5,6 +5,7 @@ import { BookOpen, FolderOpen, ArrowRight } from "lucide-react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NewCourseDialog } from "@/components/dashboard/new-course-dialog";
+import SeedSampleButton from "@/components/dashboard/seed-sample-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import DeleteButton from "@/components/dashboard/delete-button";
@@ -32,7 +33,7 @@ export default async function CoursesPage() {
 
   return (
     <main className="space-y-8 px-4 py-8 sm:px-6 lg:px-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-4xl font-bold tracking-tight text-foreground">
             Your Courses
@@ -41,7 +42,10 @@ export default async function CoursesPage() {
             Manage your subjects, notes, and study tracks.
           </p>
         </div>
-        <NewCourseDialog />
+        <div className="flex items-center gap-3">
+          <SeedSampleButton />
+          <NewCourseDialog />
+        </div>
       </div>
 
       {courses.length === 0 ? (
@@ -51,9 +55,10 @@ export default async function CoursesPage() {
             No courses created yet
           </h3>
           <p className="mt-2 text-muted-foreground">
-            Create your first course to start organizing your study notes.
+            Create your first course or load sample study materials to explore.
           </p>
-          <div className="mt-6">
+          <div className="mt-6 flex items-center justify-center gap-3">
+            <SeedSampleButton />
             <NewCourseDialog />
           </div>
         </div>

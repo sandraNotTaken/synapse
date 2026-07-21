@@ -109,10 +109,10 @@ export default async function StudyPage() {
   return (
     <main className="space-y-8 px-2 py-4 sm:px-4 sm:py-6 lg:px-6">
       <div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
           Study Hub
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground sm:text-base">
+        <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
           Supercharge your retention with spaced repetition and practice quizzes.
         </p>
       </div>

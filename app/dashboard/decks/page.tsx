@@ -41,10 +41,10 @@ export default async function DecksPage() {
   return (
     <main className="space-y-8 px-4 py-8 sm:px-6 lg:px-8">
       <div>
-        <h1 className="text-4xl font-bold tracking-tight text-foreground">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
           Flashcard Decks
         </h1>
-        <p className="mt-2 text-muted-foreground">
+        <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
           Manage, browse, and edit your custom flashcards and practice decks.
         </p>
       </div>

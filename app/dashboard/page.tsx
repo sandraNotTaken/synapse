@@ -10,6 +10,8 @@ import { StatsGrid } from "@/components/dashboard/stats-grid";
 import RecentCourses from "@/components/dashboard/recent-courses";
 import { CourseGridSkeleton } from "@/components/skeletons/course-grid-skeleton";
 
+import ExamScheduler from "@/components/dashboard/exam-scheduler";
+
 export default async function DashboardPage() {
   const session = await auth();
 
@@ -33,6 +35,8 @@ export default async function DashboardPage() {
         reviewsToday={data.reviewsToday}
         streak={data.streak}
       />
+
+      <ExamScheduler />
 
       <Suspense fallback={<CourseGridSkeleton />}>
         <RecentCourses courses={data.recentCourses} />

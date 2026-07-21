@@ -1,68 +1,88 @@
-const CACHE_NAME = "synapse-cache-v2";
+const CACHE_NAME = "synapse-cache-v5";
 const OFFLINE_URL = "/offline.html";
 
 const PRECACHE_ASSETS = [
-  "/",
-  "/dashboard",
-  "/dashboard/courses",
-  "/dashboard/decks",
-  "/dashboard/study",
-  "/dashboard/settings",
   "/offline.html",
   "/manifest.json",
   "/globe.svg"
 ];
 
-// Install Event: Cache Core Assets
+// Install Event: Safe Pre-caching
 self.addEventListener("install", (event) => {
+  self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_ASSETS);
-    }).then(() => self.skipWaiting())
-  );
-});
-
-// Activate Event: Cleanup Old Caches
-self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            return caches.delete(cache);
+    caches.open(CACHE_NAME).then(async (cache) => {
+      await Promise.allSettled(
+        PRECACHE_ASSETS.map(async (url) => {
+          try {
+            const res = await fetch(url);
+            if (res.ok) {
+              await cache.put(url, res);
+            }
+          } catch (e) {
+            console.warn("Pre-cache item skipped:", url, e);
           }
         })
       );
-    }).then(() => self.clients.claim())
+    })
   );
 });
 
-// Fetch Event: Smart Offline Caching for Next.js & NextAuth
+// Activate Event: Claim clients & purge old caches
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    Promise.all([
+      self.clients.claim(),
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cache) => {
+            if (cache !== CACHE_NAME) {
+              return caches.delete(cache);
+            }
+          })
+        );
+      }),
+    ])
+  );
+});
+
+// Fetch Event: Smart Offline Caching for Next.js & NextAuth Session Preservation
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
   const url = new URL(event.request.url);
 
-  // Ignore webpack HMR dev sockets
+  // Ignore Webpack HMR dev sockets
   if (url.pathname.startsWith("/_next/webpack-hmr")) {
     return;
   }
 
-  // Handle NextAuth session endpoint when offline
+  // Intercept NextAuth Session Endpoint when network is lost so user stays logged in offline!
   if (url.pathname.includes("/api/auth/session")) {
     event.respondWith(
       fetch(event.request).catch(() => {
         return new Response(
           JSON.stringify({
             user: {
-              name: "Offline User",
+              name: "Synapse Learner",
               email: "esewiosarugue@gmail.com",
             },
             expires: new Date(Date.now() + 86400000).toISOString(),
           }),
-          {
-            headers: { "Content-Type": "application/json" },
-          }
+          { headers: { "Content-Type": "application/json" } }
+        );
+      })
+    );
+    return;
+  }
+
+  // Other /api/ routes bypass SW when online, but return 503 JSON when offline
+  if (url.pathname.startsWith("/api/")) {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        return new Response(
+          JSON.stringify({ error: "Offline mode active", offline: true }),
+          { status: 503, headers: { "Content-Type": "application/json" } }
         );
       })
     );
@@ -72,7 +92,7 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
-        // Cache successful GET responses for static files and pages
+        // Cache valid 200 responses for static assets and HTML pages
         if (
           networkResponse &&
           networkResponse.status === 200 &&
@@ -80,7 +100,6 @@ self.addEventListener("fetch", (event) => {
         ) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            // Store clean URL without _rsc query params for easy matching
             const cacheKey = url.searchParams.has("_rsc") ? url.pathname : event.request;
             cache.put(cacheKey, responseToCache);
           });
@@ -88,7 +107,7 @@ self.addEventListener("fetch", (event) => {
         return networkResponse;
       })
       .catch(async () => {
-        // Network failed (offline mode active):
+        // Network Offline Fallback Mode:
 
         // 1. Try exact request match in cache
         let cachedResponse = await caches.match(event.request);
@@ -111,7 +130,7 @@ self.addEventListener("fetch", (event) => {
         const fallback = await caches.match(OFFLINE_URL);
         if (fallback) return fallback;
 
-        return new Response("Offline mode active. Connection lost.", {
+        return new Response("Offline mode active.", {
           status: 503,
           headers: { "Content-Type": "text/plain" },
         });

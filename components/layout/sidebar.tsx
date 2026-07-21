@@ -7,7 +7,7 @@ import {
   House,
   BookOpen,
   Layers3,
-  BrainCircuit,
+  Brain,
   Settings,
   X,
   ChevronDown,
@@ -29,7 +29,7 @@ const links = [
   {
     title: "Study",
     href: "/dashboard/study",
-    icon: BrainCircuit,
+    icon: Brain,
   },
   {
     title: "Decks",
