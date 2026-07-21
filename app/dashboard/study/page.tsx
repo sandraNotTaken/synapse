@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { Card, CardContent } from "@/components/ui/card";
 import DeleteButton from "@/components/dashboard/delete-button";
 import ConfidenceMap from "@/components/dashboard/confidence-map";
+import RetentionPredictor from "@/components/dashboard/retention-predictor";
 import { getDashboardData } from "@/lib/dashboard";
 
 export default async function StudyPage() {
@@ -23,6 +24,11 @@ export default async function StudyPage() {
   }
 
   const { streak, reviewsToday, studyMinutesToday, dailyGoal } = dashboardData;
+
+  // Calculate total cards count for retention predictor
+  const totalCards = await prisma.card.count({
+    where: { deck: { topic: { course: { user: { email: session.user.email } } } } },
+  });
 
   // Get user's decks
   const decks = await prisma.deck.findMany({
@@ -167,6 +173,9 @@ export default async function StudyPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* AI Memory Retention Predictor */}
+      <RetentionPredictor totalCards={totalCards} dueCardsCount={reviewsToday} />
 
       {/* Confidence Map */}
       <ConfidenceMap topics={confidenceData} />

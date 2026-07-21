@@ -228,9 +228,9 @@ export default function TopicWorkspace({
       </Link>
 
       {/* Main layout */}
-      <div className="grid gap-8 lg:grid-cols-3">
+      <div className="grid gap-8 lg:grid-cols-12">
         {/* Left Notes column */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-7 xl:col-span-8 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
@@ -243,14 +243,14 @@ export default function TopicWorkspace({
 
             <button
               onClick={() => setScannerOpen(true)}
-              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/20 transition"
+              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-2.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/20 transition shrink-0"
             >
               <Upload className="h-4 w-4" />
               <span>Scan PDF / Image Notes</span>
             </button>
           </div>
 
-          <div className="rounded-3xl border border-border bg-card/80 p-8 shadow-2xl backdrop-blur-sm">
+          <div className="rounded-2xl border border-border bg-card/80 p-6 sm:p-8 shadow-xl backdrop-blur-sm">
             <TopicEditor
               topicId={topicId}
               value={content}
@@ -260,23 +260,25 @@ export default function TopicWorkspace({
         </div>
 
         {/* Right Sidebar - AI Study tools */}
-        <div className="lg:col-span-1 space-y-6">
-          <AIToolbar
-            onSummarize={triggerSummarize}
-            onExplain={triggerExplain}
-            onFlashcards={triggerFlashcards}
-            onQuiz={triggerQuiz}
-            loading={loadingAction}
-          />
+        <div className="lg:col-span-5 xl:col-span-4">
+          <div className="sticky top-20 space-y-6 max-h-[calc(100vh-6rem)] overflow-y-auto no-scrollbar pr-0.5">
+            <AIToolbar
+              onSummarize={triggerSummarize}
+              onExplain={triggerExplain}
+              onFlashcards={triggerFlashcards}
+              onQuiz={triggerQuiz}
+              loading={loadingAction}
+            />
 
-          {/* AI Practice Exam Panel */}
-          <div className="rounded-3xl border border-border bg-card/60 p-6 backdrop-blur-xl">
-            <ExamPanel topicId={topicId} />
-          </div>
+            {/* AI Practice Exam Panel */}
+            <div className="rounded-2xl border border-border bg-card/60 p-5 backdrop-blur-xl">
+              <ExamPanel topicId={topicId} />
+            </div>
 
-          {/* Feynman Technique Evaluation Panel */}
-          <div className="rounded-3xl border border-border bg-card/60 p-6 backdrop-blur-xl">
-            <FeynmanPanel topicTitle={topicTitle} />
+            {/* Feynman Technique Evaluation Panel */}
+            <div className="rounded-2xl border border-border bg-card/60 p-5 backdrop-blur-xl">
+              <FeynmanPanel topicTitle={topicTitle} />
+            </div>
           </div>
         </div>
       </div>

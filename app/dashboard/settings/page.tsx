@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
-import { ShieldCheck, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 import { auth, signOut } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import SettingsClient from "@/components/dashboard/settings-client";
 import ExportDataButton from "@/components/dashboard/export-data-button";
+import { DayAnalytics } from "@/components/dashboard/analytics-chart";
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -22,22 +23,73 @@ export default async function SettingsPage() {
     .toUpperCase()
     .slice(0, 2);
 
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setUTCHours(0, 0, 0, 0);
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+
   const userRecord = await prisma.user.findUnique({
     where: { email: session.user.email },
-    select: { dailyGoal: true, xp: true, level: true },
+    select: {
+      id: true,
+      dailyGoal: true,
+      xp: true,
+      level: true,
+      studySessions: {
+        where: {
+          createdAt: { gte: sevenDaysAgo },
+        },
+      },
+    },
   });
+
   const currentGoal = userRecord?.dailyGoal ?? 45;
   const xp = userRecord?.xp ?? 0;
   const level = userRecord?.level ?? 1;
+
+  // Build real weekly analytics data from database
+  const daysMap = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const weeklyAnalytics: DayAnalytics[] = [];
+
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setUTCHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - i);
+
+    const nextD = new Date(d);
+    nextD.setDate(nextD.getDate() + 1);
+
+    const daySessions = userRecord?.studySessions.filter(
+      (s) => s.createdAt >= d && s.createdAt < nextD
+    ) || [];
+
+    const totalSecs = daySessions.reduce((acc, curr) => acc + curr.duration, 0);
+    const mins = Math.round(totalSecs / 60);
+
+    const cardsReviewed = userRecord?.id
+      ? await prisma.card.count({
+          where: {
+            createdAt: { gte: d, lt: nextD },
+            deck: { topic: { course: { userId: userRecord.id } } },
+          },
+        })
+      : 0;
+
+    weeklyAnalytics.push({
+      day: daysMap[d.getDay()],
+      dateStr: `${d.getMonth() + 1}/${d.getDate()}`,
+      mins,
+      cardsReviewed,
+    });
+  }
 
   return (
     <main className="mx-auto max-w-5xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">Settings</h1>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">Settings & Analytics</h1>
           <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-            Manage your personal profile, set study goals, review hotkeys, and clear learning metrics.
+            Manage your personal profile, review real-time focus analytics, set daily goals, and clear study data.
           </p>
         </div>
 
@@ -69,6 +121,7 @@ export default async function SettingsPage() {
         currentGoal={currentGoal}
         xp={xp}
         level={level}
+        weeklyAnalytics={weeklyAnalytics}
       />
     </main>
   );

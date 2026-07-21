@@ -17,7 +17,12 @@ const OfflineContext = createContext<OfflineContextType | undefined>(undefined);
 export function useOffline() {
   const context = useContext(OfflineContext);
   if (!context) {
-    throw new Error("useOffline must be used within an OfflineProvider");
+    return {
+      isOffline: typeof window !== "undefined" ? !navigator.onLine : false,
+      queueStudySession: () => {},
+      queueCardConfidence: () => {},
+      queueNoteContent: () => {},
+    };
   }
   return context;
 }

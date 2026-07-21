@@ -6,6 +6,8 @@ import { updateUserProfile, resetAccountData } from "@/app/dashboard/settings/us
 import { useRouter } from "next/navigation";
 import ThemeToggle from "./theme-toggle";
 import GoalSettings from "./goal-settings";
+import AnalyticsChart, { DayAnalytics } from "./analytics-chart";
+import PushNotificationToggle from "./push-notification-toggle";
 
 interface SettingsClientProps {
   initialName: string;
@@ -14,6 +16,7 @@ interface SettingsClientProps {
   currentGoal: number;
   xp?: number;
   level?: number;
+  weeklyAnalytics?: DayAnalytics[];
 }
 
 type TabType = "profile" | "learning" | "shortcuts" | "privacy" | "analytics";
@@ -25,6 +28,7 @@ export default function SettingsClient({
   currentGoal,
   xp = 120,
   level = 2,
+  weeklyAnalytics = [],
 }: SettingsClientProps) {
   const [activeTab, setActiveTab] = useState<TabType>("profile");
   const [name, setName] = useState(initialName);
@@ -258,60 +262,17 @@ export default function SettingsClient({
 
         {/* Analytics & Charts Tab */}
         {activeTab === "analytics" && (
-          <div className="space-y-6">
-            <div className="rounded-3xl border border-border bg-card/60 p-6 backdrop-blur-xl space-y-6">
-              <div>
-                <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5 text-indigo-500" />
-                  Learning Focus Analytics
-                </h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Weekly distribution of active study minutes across learning sessions.
-                </p>
-              </div>
-
-              {/* Weekly SVG Chart */}
-              <div className="rounded-2xl border border-border bg-muted/20 p-6 space-y-4">
-                <div className="flex justify-between items-center text-xs text-muted-foreground font-semibold">
-                  <span>Weekly Minutes Studied</span>
-                  <span className="text-indigo-600 dark:text-indigo-400 font-bold">Goal: {currentGoal}m / day</span>
-                </div>
-
-                <div className="h-44 w-full flex items-end justify-between gap-3 pt-6 pb-2 border-b border-border">
-                  {[
-                    { day: "Mon", mins: 30 },
-                    { day: "Tue", mins: 45 },
-                    { day: "Wed", mins: 60 },
-                    { day: "Thu", mins: 25 },
-                    { day: "Fri", mins: 40 },
-                    { day: "Sat", mins: 50 },
-                    { day: "Sun", mins: 65 },
-                  ].map((bar, idx) => {
-                    const heightPercent = Math.min(100, Math.round((bar.mins / 80) * 100));
-                    return (
-                      <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
-                        <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 opacity-0 group-hover:opacity-100 transition">
-                          {bar.mins}m
-                        </span>
-                        <div
-                          className="w-full bg-indigo-600 rounded-t-xl transition-all duration-500 hover:bg-indigo-500"
-                          style={{ height: `${heightPercent}%` }}
-                        />
-                        <span className="text-[10px] text-muted-foreground font-semibold">{bar.day}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
+          <AnalyticsChart
+            weeklyData={weeklyAnalytics || []}
+            dailyGoal={currentGoal}
+          />
         )}
 
         {/* Learning Preferences */}
         {activeTab === "learning" && (
           <div className="space-y-6">
             {/* Theme */}
-            <div className="rounded-3xl border border-border bg-card/60 p-6 backdrop-blur-xl space-y-4">
+            <div className="rounded-2xl border border-border bg-card/60 p-6 backdrop-blur-xl space-y-4">
               <div>
                 <h2 className="text-lg font-bold text-foreground">Appearance</h2>
                 <p className="text-xs text-muted-foreground">Select your interface styling scheme.</p>
@@ -320,6 +281,9 @@ export default function SettingsClient({
                 <ThemeToggle />
               </div>
             </div>
+
+            {/* Desktop / PWA Push Notifications */}
+            <PushNotificationToggle />
 
             {/* Goal settings */}
             <GoalSettings currentGoal={currentGoal} />

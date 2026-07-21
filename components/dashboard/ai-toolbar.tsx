@@ -54,32 +54,32 @@ export default function AIToolbar({
   ];
 
   return (
-    <div className="sticky top-8 rounded-3xl border border-border bg-card/60 p-6 backdrop-blur">
-      <div className="mb-6 flex items-center justify-between border-b border-border pb-4">
+    <div className="rounded-2xl border border-border bg-card/60 p-5 backdrop-blur-xl space-y-4">
+      <div className="flex items-center justify-between border-b border-border pb-3">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
-          <h3 className="font-semibold text-foreground">AI Study Tools</h3>
+          <Sparkles className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
+          <h3 className="font-bold text-sm text-foreground">AI Study Tools</h3>
         </div>
       </div>
 
       {/* Configuration Settings */}
-      <div className="mb-6 rounded-2xl border border-border bg-muted/30 p-4 space-y-4 shadow-inner">
-        <div className="flex items-center gap-2 border-b border-border pb-2">
-          <Settings className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
-          <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+      <div className="rounded-xl border border-border/80 bg-muted/30 p-3.5 space-y-3">
+        <div className="flex items-center gap-1.5 border-b border-border/50 pb-2">
+          <Settings className="h-3 w-3 text-indigo-500 dark:text-indigo-400" />
+          <h4 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
             Generation Parameters
           </h4>
         </div>
 
         {/* Difficulty */}
-        <div className="space-y-1.5">
-          <label className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wide">
+        <div className="space-y-1">
+          <label className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
             Difficulty Level
           </label>
           <select
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value)}
-            className="w-full rounded-xl border border-border bg-card p-2.5 text-xs text-foreground focus:border-indigo-500 focus:outline-none cursor-pointer transition hover:bg-muted"
+            className="w-full rounded-lg border border-border bg-card p-2 text-xs text-foreground focus:border-indigo-500 focus:outline-none cursor-pointer transition hover:bg-muted"
           >
             <option value="easy">Easy (Definitions & Recall)</option>
             <option value="intermediate">Intermediate (Applications)</option>
@@ -88,15 +88,15 @@ export default function AIToolbar({
         </div>
 
         {/* Counts */}
-        <div className="grid grid-cols-2 gap-3 pt-1">
-          <div className="space-y-1.5">
-            <label className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wide">
+        <div className="grid grid-cols-2 gap-2 pt-0.5">
+          <div className="space-y-1">
+            <label className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
               Flashcard Count
             </label>
             <select
               value={flashcardCount}
               onChange={(e) => setFlashcardCount(Number(e.target.value))}
-              className="w-full rounded-xl border border-border bg-card p-2.5 text-xs text-foreground focus:border-indigo-500 focus:outline-none cursor-pointer transition hover:bg-muted"
+              className="w-full rounded-lg border border-border bg-card p-2 text-xs text-foreground focus:border-indigo-500 focus:outline-none cursor-pointer transition hover:bg-muted"
             >
               <option value="5">5 Cards</option>
               <option value="10">10 Cards</option>
@@ -104,14 +104,14 @@ export default function AIToolbar({
               <option value="20">20 Cards</option>
             </select>
           </div>
-          <div className="space-y-1.5">
-            <label className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wide">
+          <div className="space-y-1">
+            <label className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
               Quiz Questions
             </label>
             <select
               value={quizCount}
               onChange={(e) => setQuizCount(Number(e.target.value))}
-              className="w-full rounded-xl border border-border bg-card p-2.5 text-xs text-foreground focus:border-indigo-500 focus:outline-none cursor-pointer transition hover:bg-muted"
+              className="w-full rounded-lg border border-border bg-card p-2 text-xs text-foreground focus:border-indigo-500 focus:outline-none cursor-pointer transition hover:bg-muted"
             >
               <option value="5">5 Qs</option>
               <option value="10">10 Qs</option>
@@ -123,7 +123,7 @@ export default function AIToolbar({
       </div>
 
       {/* AI Actions */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         {actions.map((action) => {
           const Icon = action.icon;
           const isCurrentLoading = loading === action.id;
@@ -133,14 +133,14 @@ export default function AIToolbar({
               key={action.id}
               onClick={action.handler}
               disabled={loading !== null}
-              className="flex w-full cursor-pointer items-center justify-between rounded-2xl border border-border bg-card/40 p-4 text-left transition hover:border-indigo-500 hover:bg-indigo-500/10 disabled:opacity-50"
+              className="flex w-full cursor-pointer items-center justify-between rounded-xl border border-border/80 bg-card/40 p-3 text-left transition hover:border-indigo-500 hover:bg-indigo-500/10 disabled:opacity-50"
             >
-              <div className="flex items-center gap-4">
-                <div className="rounded-xl bg-indigo-500/10 p-2 text-indigo-500 dark:text-indigo-400">
-                  <Icon className="h-5 w-5" />
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-indigo-500/10 p-1.5 text-indigo-500 dark:text-indigo-400">
+                  <Icon className="h-4 w-4" />
                 </div>
                 <div>
-                  <span className="font-semibold text-foreground block text-sm">
+                  <span className="font-bold text-foreground block text-xs">
                     {action.title}
                   </span>
                   <span className="text-[10px] text-muted-foreground block mt-0.5 leading-none">
@@ -149,7 +149,7 @@ export default function AIToolbar({
                 </div>
               </div>
               {isCurrentLoading && (
-                <Loader2 className="h-4 w-4 animate-spin text-indigo-500 dark:text-indigo-400 shrink-0" />
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-500 dark:text-indigo-400 shrink-0" />
               )}
             </button>
           );

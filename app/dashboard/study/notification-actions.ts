@@ -11,7 +11,10 @@ export async function getUserNotifications() {
   }
 
   try {
-    return await prisma.notification.findMany({
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Notification Query Timeout")), 1500)
+    );
+    const query = prisma.notification.findMany({
       where: {
         user: {
           email: session.user.email,
@@ -21,8 +24,9 @@ export async function getUserNotifications() {
         createdAt: "desc",
       },
     });
+
+    return (await Promise.race([query, timeout])) as any[];
   } catch (err) {
-    console.error("Failed to fetch notifications:", err);
     return [];
   }
 }

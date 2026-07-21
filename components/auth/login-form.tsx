@@ -30,18 +30,19 @@ export default function LoginForm() {
         email: email.trim(),
         password,
         redirect: false,
-        callbackUrl: "/dashboard",
+        redirectTo: "/dashboard",
       });
 
       if (res?.error) {
         setError("Invalid email address or password.");
         setLoading(false);
-      } else if (res?.url) {
-        window.location.href = res.url;
+      } else {
+        // Successful login -> navigate to dashboard
+        window.location.href = "/dashboard";
       }
     } catch (err) {
       console.error("Login error:", err);
-      setError("An unexpected error occurred. Please try again.");
+      setError("Failed to sign in. Please check your credentials.");
       setLoading(false);
     }
   };
