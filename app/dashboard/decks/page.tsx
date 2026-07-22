@@ -72,12 +72,12 @@ export default async function DecksPage() {
           {decks.map((deck) => (
             <div
               key={deck.id}
-              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border bg-card/40 p-6 transition-all hover:border-indigo-500/40 hover:bg-card/85 hover:shadow-[0_20px_50px_-20px_rgba(99,102,241,0.15)]"
+              className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card/60 p-6 backdrop-blur-xl transition-all duration-300 hover:border-indigo-500/30 hover:bg-card/90 hover:shadow-xl space-y-4"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span
-                    className="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                    className="inline-block rounded-lg px-2.5 py-1 text-[11px] font-bold"
                     style={{
                       backgroundColor: `${deck.topic.course.color}20`,
                       color: deck.topic.course.color,
@@ -85,33 +85,46 @@ export default async function DecksPage() {
                   >
                     {deck.topic.course.title}
                   </span>
-                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Brain className="h-3 w-3 text-indigo-500 dark:text-indigo-400" />
-                    {deck.cards.length} cards
+                  <span className="flex items-center gap-1.5 text-xs font-semibold text-indigo-500">
+                    <Brain className="h-3.5 w-3.5" />
+                    {deck.cards.length} {deck.cards.length === 1 ? 'card' : 'cards'}
                   </span>
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-bold text-foreground group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                  <h3 className="text-lg font-bold text-foreground group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                     {deck.title}
                   </h3>
                   <p className="mt-1 text-xs text-muted-foreground">
                     Topic: {deck.topic.title}
                   </p>
                 </div>
+
+                {/* Card Sample Preview Snippet */}
+                {deck.cards.length > 0 && (
+                  <div className="rounded-xl border border-border/60 bg-muted/30 p-3 text-xs text-muted-foreground space-y-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-500 block">
+                      Sample Question:
+                    </span>
+                    <p className="line-clamp-2 font-medium text-foreground text-[11px] leading-relaxed">
+                      "{deck.cards[0].front}"
+                    </p>
+                  </div>
+                )}
               </div>
 
-              <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
+              <div className="pt-2 flex items-center justify-between border-t border-border/60">
                 <Link
                   href={`/dashboard/study/review/${deck.id}`}
-                  className="text-sm font-semibold text-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition"
+                  className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
                 >
-                  Start Review
+                  <span>Start Review</span>
+                  <ChevronRight className="h-3.5 w-3.5" />
                 </Link>
-                <div className="flex items-center gap-3">
+
+                <div className="flex items-center gap-2">
                   <ExportAnkiButton deckId={deck.id} />
                   <DeleteButton type="deck" id={deck.id} />
-                  <ChevronRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-1 group-hover:text-foreground shrink-0" />
                 </div>
               </div>
             </div>

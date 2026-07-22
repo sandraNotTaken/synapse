@@ -127,17 +127,48 @@ export async function generateSimulatedNotifications() {
 
     if (!user) return { success: false };
 
-    const unreadCount = user.notifications.filter(n => !n.read).length;
-    if (unreadCount > 2) return { success: true }; // Don't flood them
+    const unreadCount = user.notifications.filter((n) => !n.read).length;
+    if (unreadCount >= 3) return { success: true };
 
-    // 1. Goal Notification Simulation
     const startOfToday = new Date();
     startOfToday.setUTCHours(0, 0, 0, 0);
-    const todaysSessions = user.studySessions.filter(s => s.createdAt >= startOfToday);
+
+    // 1. STREAK NOTIFICATION WIDGET TRIGGER
+    const hasStreakNotif = user.notifications.some(
+      (n) => n.type === "streak" && n.createdAt >= startOfToday
+    );
+
+    // Calculate active streak count
+    let streakCount = 1;
+    if (user.studySessions.length > 0) {
+      const dates = user.studySessions.map((s) => {
+        const d = new Date(s.createdAt);
+        d.setUTCHours(0, 0, 0, 0);
+        return d.getTime();
+      });
+      const uniqueDates = Array.from(new Set(dates)).sort((a, b) => b - a);
+      streakCount = uniqueDates.length > 0 ? Math.max(1, uniqueDates.length) : 1;
+    }
+
+    if (!hasStreakNotif && streakCount >= 1) {
+      await prisma.notification.create({
+        data: {
+          title: `🔥 ${streakCount}-Day Study Streak Active!`,
+          body: `Keep the fire burning! You've logged active learning sessions for ${streakCount} consecutive days.`,
+          type: "streak",
+          userId: user.id,
+        },
+      });
+    }
+
+    // 2. GOAL NOTIFICATION TRIGGER
+    const todaysSessions = user.studySessions.filter((s) => s.createdAt >= startOfToday);
     const totalSecondsToday = todaysSessions.reduce((sum, s) => sum + s.duration, 0);
     const studyMinutesToday = Math.round(totalSecondsToday / 60);
 
-    const hasGoalNotif = user.notifications.some(n => n.type === "goal" && n.createdAt >= startOfToday);
+    const hasGoalNotif = user.notifications.some(
+      (n) => n.type === "goal" && n.createdAt >= startOfToday
+    );
 
     if (studyMinutesToday >= user.dailyGoal && !hasGoalNotif) {
       await prisma.notification.create({
@@ -150,19 +181,37 @@ export async function generateSimulatedNotifications() {
       });
     }
 
-    // 2. Review notification if they have unreviewed decks
+    // 3. REVIEW NOTIFICATION TRIGGER
     const totalCards = await prisma.card.count({
-      where: { deck: { topic: { course: { userId: user.id } } } }
+      where: { deck: { topic: { course: { userId: user.id } } } },
     });
 
-    const hasReviewNotif = user.notifications.some(n => n.type === "review" && n.createdAt >= startOfToday);
+    const hasReviewNotif = user.notifications.some(
+      (n) => n.type === "review" && n.createdAt >= startOfToday
+    );
 
-    if (totalCards > 0 && !hasReviewNotif && Math.random() > 0.4) {
+    if (totalCards > 0 && !hasReviewNotif) {
       await prisma.notification.create({
         data: {
           title: "Decks Ready for Review 🧠",
           body: "You have cards waiting to be reviewed. Keep them fresh with a quick spaced repetition session!",
           type: "review",
+          userId: user.id,
+        },
+      });
+    }
+
+    // 4. XP LEVEL-UP NOTIFICATION TRIGGER
+    const hasLevelNotif = user.notifications.some(
+      (n) => n.title.includes("Level Up") && n.createdAt >= startOfToday
+    );
+
+    if (user.xp >= 100 && !hasLevelNotif) {
+      await prisma.notification.create({
+        data: {
+          title: `⚡ Level ${user.level} Thinker Milestone!`,
+          body: `Awesome progress! You've accumulated ${user.xp} total XP points across your study sessions.`,
+          type: "system",
           userId: user.id,
         },
       });

@@ -5,7 +5,6 @@ import { BookOpen, FolderOpen, ArrowRight } from "lucide-react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NewCourseDialog } from "@/components/dashboard/new-course-dialog";
-import SeedSampleButton from "@/components/dashboard/seed-sample-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import DeleteButton from "@/components/dashboard/delete-button";
@@ -43,7 +42,6 @@ export default async function CoursesPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <SeedSampleButton />
           <NewCourseDialog />
         </div>
       </div>
@@ -55,10 +53,9 @@ export default async function CoursesPage() {
             No courses created yet
           </h3>
           <p className="mt-2 text-muted-foreground">
-            Create your first course or load sample study materials to explore.
+            Create your first course to start adding topics and study notes.
           </p>
           <div className="mt-6 flex items-center justify-center gap-3">
-            <SeedSampleButton />
             <NewCourseDialog />
           </div>
         </div>

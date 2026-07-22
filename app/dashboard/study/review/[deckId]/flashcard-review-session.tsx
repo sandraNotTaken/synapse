@@ -206,13 +206,13 @@ export default function FlashcardReviewSession({
 
           {/* 3D Flip Card Container */}
           <div
-            className="group relative h-80 w-full cursor-pointer"
+            className="group relative min-h-[440px] w-full cursor-pointer"
             style={{ perspective: "1000px" }}
             onClick={() => setIsFlipped(!isFlipped)}
           >
             {/* The actual Card flipping node */}
             <div
-              className="relative h-full w-full transition-all duration-500 ease-out"
+              className="relative min-h-[440px] w-full transition-all duration-500 ease-out"
               style={{
                 transformStyle: "preserve-3d",
                 transform: isFlipped ? "rotateY(180deg)" : "none",
@@ -220,46 +220,66 @@ export default function FlashcardReviewSession({
             >
               {/* CARD FRONT FACE */}
               <div
-                className="absolute inset-0 flex flex-col justify-between p-8 rounded-3xl border border-border bg-card shadow-2xl backdrop-blur-xl"
+                className="absolute inset-0 flex flex-col justify-between p-8 sm:p-10 rounded-2xl border border-border bg-card/90 shadow-2xl backdrop-blur-xl"
                 style={{
                   backfaceVisibility: "hidden",
                   WebkitBackfaceVisibility: "hidden",
                 }}
               >
-                <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-500 dark:text-indigo-400">
-                  Question / Term
+                <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-indigo-500">
+                    Question / Term
+                  </span>
+                  <span className="rounded-full bg-indigo-500/10 px-3 py-1 text-[11px] font-bold text-indigo-500">
+                    Card {currentIndex + 1} of {cards.length}
+                  </span>
                 </div>
-                <div className="flex-1 flex items-center justify-center text-center">
-                  <p className="text-xl md:text-2xl font-bold leading-relaxed text-foreground">
+
+                <div className="flex-1 flex items-center justify-center text-center px-4 py-6">
+                  <p className="text-xl sm:text-2xl font-bold leading-relaxed text-foreground max-w-2xl">
                     {currentCard.front}
                   </p>
                 </div>
-                <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground font-medium">
-                  <RotateCw className="h-3.5 w-3.5 animate-pulse" />
-                  Click Card to Reveal Answer
+
+                <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground font-semibold pt-3 border-t border-border/40">
+                  <RotateCw className="h-3.5 w-3.5 animate-pulse text-indigo-500" />
+                  <span>Click Card or press <kbd className="font-mono bg-muted px-1.5 py-0.5 rounded">Space</kbd> to reveal answer</span>
                 </div>
               </div>
 
               {/* CARD BACK FACE (Rotated 180 degrees initially) */}
               <div
-                className="absolute inset-0 flex flex-col justify-between p-8 rounded-3xl border border-border bg-card shadow-2xl backdrop-blur-xl"
+                className="absolute inset-0 flex flex-col justify-between p-8 sm:p-10 rounded-2xl border border-border bg-card/90 shadow-2xl backdrop-blur-xl"
                 style={{
                   backfaceVisibility: "hidden",
                   WebkitBackfaceVisibility: "hidden",
                   transform: "rotateY(180deg)",
                 }}
               >
-                <div className="text-[10px] font-bold uppercase tracking-widest text-cyan-600 dark:text-cyan-400">
-                  Answer / Explanation
+                <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-cyan-500">
+                    Answer / Explanation
+                  </span>
+                  <span className="rounded-full bg-cyan-500/10 px-3 py-1 text-[11px] font-bold text-cyan-500">
+                    Card {currentIndex + 1} of {cards.length}
+                  </span>
                 </div>
-                <div className="flex-1 flex items-center justify-center text-center overflow-y-auto no-scrollbar py-2">
-                  <p className="text-lg md:text-xl font-medium leading-relaxed text-foreground">
+
+                <div className="flex-1 flex flex-col items-center justify-center text-center overflow-y-auto no-scrollbar px-4 py-6">
+                  <p className="text-lg sm:text-xl font-medium leading-relaxed text-foreground max-w-2xl">
                     {currentCard.back}
                   </p>
+                  {currentCard.explanation && (
+                    <div className="mt-4 rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-3.5 text-xs text-muted-foreground text-left max-w-xl">
+                      <span className="font-bold text-indigo-500 block mb-1">AI Explanation:</span>
+                      {currentCard.explanation}
+                    </div>
+                  )}
                 </div>
-                <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground font-medium">
-                  <RotateCw className="h-3.5 w-3.5" />
-                  Click to See Question Again
+
+                <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground font-semibold pt-3 border-t border-border/40">
+                  <RotateCw className="h-3.5 w-3.5 text-cyan-500" />
+                  <span>Rate your recall below to set next review interval</span>
                 </div>
               </div>
             </div>

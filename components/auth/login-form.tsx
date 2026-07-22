@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Mail, Lock, ArrowRight, Loader2, Sparkles, CheckCircle2 } from "lucide-react";
 import GoogleButton from "./google-button";
-import DevLoginButton from "./dev-login-button";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -129,8 +128,6 @@ export default function LoginForm() {
             Sign Up
           </Link>
         </div>
-
-        {process.env.NODE_ENV === "development" && <DevLoginButton />}
       </div>
     </div>
   );
