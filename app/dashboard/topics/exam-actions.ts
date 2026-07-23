@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { groq } from "@ai-sdk/groq";
 import { generateText } from "ai";
 
-export async function generatePracticeExam(topicId: string) {
+export async function generatePracticeExam(topicId: string, questionCount: number = 5) {
   const session = await auth();
   if (!session?.user?.email) {
     throw new Error("Unauthorized");
@@ -26,7 +26,7 @@ export async function generatePracticeExam(topicId: string) {
 Based on these study notes:
 "${notesText.slice(0, 3000)}"
 
-Generate a 4-question multiple choice practice exam in JSON format.
+Generate a ${questionCount}-question multiple choice practice exam in JSON format.
 Return strictly a raw JSON array containing objects with these exact keys:
 [
   {
@@ -45,15 +45,15 @@ Do NOT include markdown formatting or backticks around the json output. Just raw
       prompt,
     });
 
-    const cleanJson = text.replace(/```json/g, "").replace(/```/g, "").trim();
-    const questions = JSON.parse(cleanJson);
+    const match = text.match(/\[[\s\S]*\]/);
+    const jsonString = match ? match[0] : text;
+    const questions = JSON.parse(jsonString);
     return { success: true, questions };
   } catch (err) {
     console.error("Exam generation error:", err);
-    // Fallback practice exam if API fails
-    const fallbackQuestions = [
-      {
-        id: 1,
+    // Fallback practice exam dynamically matching requested count
+    const fallbackQuestions = Array.from({ length: questionCount }, (_, idx) => {
+      const template = idx % 2 === 0 ? {
         question: `What is the core focus of ${topic.title}?`,
         options: [
           `Understanding key principles of ${topic.title}`,
@@ -63,9 +63,7 @@ Do NOT include markdown formatting or backticks around the json output. Just raw
         ],
         answer: `Understanding key principles of ${topic.title}`,
         explanation: "Mastering foundational concepts is essential for deep learning.",
-      },
-      {
-        id: 2,
+      } : {
         question: "How can spaced repetition improve long-term retention?",
         options: [
           "By reviewing material at increasing intervals over time",
@@ -75,8 +73,9 @@ Do NOT include markdown formatting or backticks around the json output. Just raw
         ],
         answer: "By reviewing material at increasing intervals over time",
         explanation: "Spaced repetition leverages the psychological spacing effect to strengthen memory consolidation.",
-      },
-    ];
+      };
+      return { id: idx + 1, ...template };
+    });
     return { success: true, questions: fallbackQuestions };
   }
 }

@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, RotateCw, CheckCircle, Award, Calendar, Flame, AlertCircle, ChevronLeft, ChevronRight, WifiOff } from "lucide-react";
+import { ArrowLeft, RotateCw, Award, Calendar, Flame, AlertCircle, ChevronLeft, ChevronRight, WifiOff, CheckCircle2, XCircle, AlertTriangle, ShieldCheck } from "lucide-react";
 import { logStudySession, updateCardConfidence } from "@/app/dashboard/study/actions";
 import { useOffline } from "@/components/providers/offline-provider";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
@@ -29,7 +29,7 @@ export default function FlashcardReviewSession({
 }: FlashcardReviewSessionProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [ratings, setRatings] = useState<Record<string, string>>({});
+  const [ratings, setRatings] = useState<Record<string, "again" | "hard" | "good" | "easy" | "skipped">>({});
   const [sessionCompleted, setSessionCompleted] = useState(false);
   const startTimeRef = useRef<number>(Date.now());
   const { isOffline, queueCardConfidence, queueStudySession } = useOffline();
@@ -86,7 +86,7 @@ export default function FlashcardReviewSession({
 
   if (cards.length === 0) {
     return (
-      <div className="w-full max-w-md rounded-3xl border border-border bg-card/50 p-8 text-center backdrop-blur-xl space-y-4">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-card/50 p-8 text-center backdrop-blur-xl space-y-4">
         <AlertCircle className="mx-auto h-12 w-12 text-muted-foreground" />
         <h3 className="text-xl font-bold text-foreground">No Cards Found</h3>
         <p className="text-sm text-muted-foreground">
@@ -105,38 +105,44 @@ export default function FlashcardReviewSession({
 
   const currentCard = cards[currentIndex];
 
-  const handleRate = async (rating: "again" | "hard" | "good" | "easy") => {
-    if (isOffline) {
-      queueCardConfidence(currentCard.id, rating);
-    } else {
-      try {
-        await updateCardConfidence(currentCard.id, rating);
-      } catch (err) {
-        console.error("Failed to update confidence:", err);
+  const handleRate = async (rating: "again" | "hard" | "good" | "easy" | "skipped") => {
+    if (rating !== "skipped") {
+      if (isOffline) {
+        queueCardConfidence(currentCard.id, rating);
+      } else {
+        try {
+          await updateCardConfidence(currentCard.id, rating);
+        } catch (err) {
+          console.error("Failed to update confidence:", err);
+        }
       }
     }
 
     setRatings((prev) => ({ ...prev, [currentCard.id]: rating }));
     setIsFlipped(false);
-    
-    // Timeout to let the flip animation return before showing the next card content
+
+    // Timeout to let the flip animation finish before loading next card
     setTimeout(async () => {
       if (currentIndex < cards.length - 1) {
         setCurrentIndex((prev) => prev + 1);
       } else {
-        const elapsedSeconds = Math.round((Date.now() - startTimeRef.current) / 1000);
-        if (isOffline) {
-          queueStudySession(Math.max(1, elapsedSeconds));
-        } else {
-          try {
-            await logStudySession(Math.max(1, elapsedSeconds));
-          } catch (err) {
-            console.error("Failed to log study session:", err);
-          }
-        }
-        setSessionCompleted(true);
+        await completeSession();
       }
     }, 150);
+  };
+
+  const completeSession = async () => {
+    const elapsedSeconds = Math.round((Date.now() - startTimeRef.current) / 1000);
+    if (isOffline) {
+      queueStudySession(Math.max(1, elapsedSeconds));
+    } else {
+      try {
+        await logStudySession(Math.max(1, elapsedSeconds));
+      } catch (err) {
+        console.error("Failed to log study session:", err);
+      }
+    }
+    setSessionCompleted(true);
   };
 
   const handlePrev = () => {
@@ -148,18 +154,34 @@ export default function FlashcardReviewSession({
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    // If moving next without rating, count it as skipped
+    if (!ratings[currentCard.id]) {
+      setRatings((prev) => ({ ...prev, [currentCard.id]: "skipped" }));
+    }
+
     if (currentIndex < cards.length - 1) {
       setIsFlipped(false);
       setTimeout(() => {
         setCurrentIndex((prev) => prev + 1);
       }, 150);
+    } else {
+      await completeSession();
     }
   };
 
-  const getRatingCount = (rating: string) => {
-    return Object.values(ratings).filter((r) => r === rating).length;
-  };
+  // Score aggregations
+  const rightCount = cards.filter(
+    (c) => ratings[c.id] === "good" || ratings[c.id] === "easy"
+  ).length;
+
+  const failedCount = cards.filter(
+    (c) => ratings[c.id] === "again" || ratings[c.id] === "hard"
+  ).length;
+
+  const skippedCount = cards.filter(
+    (c) => ratings[c.id] === "skipped" || !ratings[c.id]
+  ).length;
 
   return (
     <div className="w-full max-w-lg space-y-6">
@@ -167,14 +189,14 @@ export default function FlashcardReviewSession({
       <div className="flex items-center justify-between">
         <Link
           href="/dashboard/study"
-          className="inline-flex cursor-pointer items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"
+          className="inline-flex cursor-pointer items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground font-semibold"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Hub
         </Link>
         {isOffline && (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-500/10 px-2.5 py-1 text-xs font-semibold text-rose-500 border border-rose-500/30">
-            <WifiOff className="h-3.5 w-3.5 animate-pulse" />
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-500/10 px-2.5 py-1 text-xs font-semibold text-rose-500 border border-rose-500/30 animate-pulse">
+            <WifiOff className="h-3.5 w-3.5" />
             Offline Mode
           </span>
         )}
@@ -286,7 +308,7 @@ export default function FlashcardReviewSession({
           </div>
 
           {/* Manual navigation controls */}
-          <div className="flex items-center justify-between gap-4 mt-2 mb-4 bg-muted/30 p-2.5 rounded-2xl border border-border">
+          <div className="flex items-center justify-between gap-4 mt-2 mb-4 bg-muted/35 p-2.5 rounded-2xl border border-border">
             <button
               type="button"
               onClick={handlePrev}
@@ -304,163 +326,180 @@ export default function FlashcardReviewSession({
             <button
               type="button"
               onClick={handleNext}
-              disabled={currentIndex === cards.length - 1}
-              className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-muted hover:text-foreground disabled:opacity-30 disabled:pointer-events-none"
+              className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-muted hover:text-foreground"
             >
-              Next
+              <span>{currentIndex === cards.length - 1 ? "Finish" : "Next"}</span>
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
 
-          {/* Rating controls - only fully active when card is flipped */}
+          {/* Rating controls - only active when card is flipped */}
           <div className="space-y-3">
             {isFlipped ? (
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  <button
+                    type="button"
+                    onClick={() => handleRate("again")}
+                    className="flex flex-col items-center justify-center rounded-2xl border border-rose-500/20 bg-rose-500/5 py-3 cursor-pointer transition hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 dark:hover:text-white"
+                  >
+                    <span className="text-sm font-bold">Again</span>
+                    <span className="text-[9px] mt-0.5 opacity-70">&lt;1m</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRate("hard")}
+                    className="flex flex-col items-center justify-center rounded-2xl border border-orange-500/20 bg-orange-500/5 py-3 cursor-pointer transition hover:bg-orange-500/20 text-orange-600 dark:text-orange-400 dark:hover:text-white"
+                  >
+                    <span className="text-sm font-bold">Hard</span>
+                    <span className="text-[9px] mt-0.5 opacity-70">10m</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRate("good")}
+                    className="flex flex-col items-center justify-center rounded-2xl border border-indigo-500/20 bg-indigo-500/5 py-3 cursor-pointer transition hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 dark:hover:text-white"
+                  >
+                    <span className="text-sm font-bold">Good</span>
+                    <span className="text-[9px] mt-0.5 opacity-70">1d</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRate("easy")}
+                    className="flex flex-col items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/5 py-3 cursor-pointer transition hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 dark:hover:text-white"
+                  >
+                    <span className="text-sm font-bold">Easy</span>
+                    <span className="text-[9px] mt-0.5 opacity-70">3d</span>
+                  </button>
+                </div>
+                
                 <button
                   type="button"
-                  onClick={() => handleRate("again")}
-                  className="flex flex-col items-center justify-center rounded-2xl border border-rose-500/20 bg-rose-500/5 py-3 cursor-pointer transition hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 dark:hover:text-white"
+                  onClick={() => handleRate("skipped")}
+                  className="w-full rounded-2xl border border-border bg-card py-3 text-xs font-bold text-muted-foreground transition hover:bg-muted"
                 >
-                  <span className="text-sm font-bold">Again</span>
-                  <span className="text-[9px] mt-0.5 opacity-70">&lt;1m</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleRate("hard")}
-                  className="flex flex-col items-center justify-center rounded-2xl border border-orange-500/20 bg-orange-500/5 py-3 cursor-pointer transition hover:bg-orange-500/20 text-orange-600 dark:text-orange-400 dark:hover:text-white"
-                >
-                  <span className="text-sm font-bold">Hard</span>
-                  <span className="text-[9px] mt-0.5 opacity-70">10m</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleRate("good")}
-                  className="flex flex-col items-center justify-center rounded-2xl border border-indigo-500/20 bg-indigo-500/5 py-3 cursor-pointer transition hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 dark:hover:text-white"
-                >
-                  <span className="text-sm font-bold">Good</span>
-                  <span className="text-[9px] mt-0.5 opacity-70">1d</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleRate("easy")}
-                  className="flex flex-col items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/5 py-3 cursor-pointer transition hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 dark:hover:text-white"
-                >
-                  <span className="text-sm font-bold">Easy</span>
-                  <span className="text-[9px] mt-0.5 opacity-70">3d</span>
+                  Skip / Leave Unanswered
                 </button>
               </div>
             ) : (
-              <button
-                type="button"
-                onClick={() => setIsFlipped(true)}
-                className="w-full rounded-2xl bg-indigo-600 py-4 text-sm font-bold text-white cursor-pointer transition hover:bg-indigo-500 active:scale-[0.99] flex items-center justify-center gap-2"
-              >
-                <RotateCw className="h-4 w-4" />
-                Flip to Reveal Answer
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsFlipped(true)}
+                  className="flex-1 rounded-2xl bg-indigo-600 py-4 text-sm font-bold text-white cursor-pointer transition hover:bg-indigo-500 active:scale-[0.99] flex items-center justify-center gap-2"
+                >
+                  <RotateCw className="h-4 w-4" />
+                  Flip to Reveal Answer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleRate("skipped")}
+                  className="rounded-2xl border border-border bg-card px-5 py-4 text-sm font-bold text-muted-foreground transition hover:bg-muted"
+                >
+                  Skip
+                </button>
+              </div>
             )}
           </div>
         </>
       ) : (
-        /* Completion Panel */
-        <div className="rounded-3xl border border-border bg-card/60 p-8 text-center backdrop-blur-xl space-y-6">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-cyan-400 shadow-lg text-white">
-            <Award className="h-8 w-8" />
+        /* Completion Panel with skips included */
+        <div className="rounded-2xl border border-border bg-card/60 p-6 text-center backdrop-blur-xl space-y-6 shadow-xl max-h-[85vh] overflow-y-auto no-scrollbar">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-cyan-400 shadow-lg text-white">
+            <Award className="h-7 w-7" />
           </div>
 
-          <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-foreground">Session Completed!</h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Fantastic job. You completed the review session for <strong>{deckTitle}</strong>.
+          <div className="space-y-1">
+            <h2 className="text-2xl font-black text-foreground">Session Completed!</h2>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Review completed for <strong>{deckTitle}</strong>. Here is your scorecard.
             </p>
           </div>
 
-          {/* Passed vs Failed Stats Grid */}
+          {/* Twitter Analytics Style Pass/Fail/Skip Grid */}
           <div className="grid grid-cols-3 gap-3">
-            <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-3.5 text-center">
-              <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Passed</p>
-              <h3 className="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
-                {getRatingCount("good") + getRatingCount("easy")}
-              </h3>
+            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3 text-center">
+              <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">Right</span>
+              <h4 className="text-lg font-black text-emerald-600 dark:text-emerald-400 mt-0.5">{rightCount}</h4>
             </div>
-            <div className="rounded-2xl border border-rose-500/20 bg-rose-500/10 p-3.5 text-center">
-              <p className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">Failed</p>
-              <h3 className="text-xl font-black text-rose-600 dark:text-rose-400 mt-1">
-                {getRatingCount("again") + getRatingCount("hard")}
-              </h3>
+            <div className="rounded-xl border border-rose-500/20 bg-rose-500/5 p-3 text-center">
+              <span className="text-[9px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider block">Failed</span>
+              <h4 className="text-lg font-black text-rose-600 dark:text-rose-400 mt-0.5">{failedCount}</h4>
             </div>
-            <div className="rounded-2xl border border-indigo-500/20 bg-indigo-500/10 p-3.5 text-center">
-              <p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Mastery</p>
-              <h3 className="text-xl font-black text-indigo-600 dark:text-indigo-400 mt-1">
-                {cards.length > 0 ? Math.round(((getRatingCount("good") + getRatingCount("easy")) / cards.length) * 100) : 0}%
-              </h3>
+            <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 text-center">
+              <span className="text-[9px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">Skipped</span>
+              <h4 className="text-lg font-black text-amber-600 dark:text-amber-400 mt-0.5">{skippedCount}</h4>
             </div>
           </div>
 
-          {/* Rating Breakdown Badges */}
-          <div className="rounded-2xl border border-border bg-muted/20 p-4 space-y-2 text-left text-xs">
-            <h4 className="font-bold text-muted-foreground uppercase tracking-wider pb-1.5 border-b border-border">Rating Breakdown</h4>
-            <div className="grid grid-cols-2 gap-2 text-left">
-              <div className="flex justify-between text-rose-600 dark:text-rose-400 font-medium">
-                <span>Again (Forgot)</span>
-                <span className="font-bold">{getRatingCount("again")}</span>
-              </div>
-              <div className="flex justify-between text-orange-600 dark:text-orange-400 font-medium">
-                <span>Hard (Struggled)</span>
-                <span className="font-bold">{getRatingCount("hard")}</span>
-              </div>
-              <div className="flex justify-between text-indigo-600 dark:text-indigo-400 font-medium">
-                <span>Good (Recalled)</span>
-                <span className="font-bold">{getRatingCount("good")}</span>
-              </div>
-              <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-medium">
-                <span>Easy (Mastered)</span>
-                <span className="font-bold">{getRatingCount("easy")}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Card-by-Card Explanations List */}
+          {/* Card-by-Card Detailed Result breakdown with explanation for ALL */}
           <div className="space-y-3 text-left">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Review Results & Concept Explanations
-            </h4>
-            <div className="max-h-64 overflow-y-auto space-y-3 pr-1 no-scrollbar">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground border-b border-border/60 pb-2">
+              Review Breakdown & Explanations
+            </h3>
+
+            <div className="space-y-3">
               {cards.map((card, idx) => {
-                const userRating = ratings[card.id] || "unrated";
-                const isPass = userRating === "good" || userRating === "easy";
+                const rating = ratings[card.id];
+                const isRight = rating === "good" || rating === "easy";
+                const isFail = rating === "again" || rating === "hard";
+                const isSkipped = rating === "skipped" || !rating;
 
                 return (
                   <div
                     key={card.id || idx}
-                    className={`rounded-2xl border p-4 space-y-2 text-xs transition ${
-                      isPass
-                        ? "border-emerald-500/20 bg-emerald-500/[0.03]"
-                        : "border-rose-500/20 bg-rose-500/[0.03]"
+                    className={`rounded-xl border p-4 space-y-2.5 text-xs transition duration-200 ${
+                      isRight
+                        ? "border-emerald-500/20 bg-emerald-500/[0.02]"
+                        : isFail
+                        ? "border-rose-500/20 bg-rose-500/[0.02]"
+                        : "border-amber-500/20 bg-amber-500/[0.02]"
                     }`}
                   >
-                    <div className="flex items-center justify-between font-semibold">
-                      <span className="text-foreground">Card #{idx + 1}</span>
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] uppercase font-bold border ${
-                          isPass
-                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
-                            : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30"
-                        }`}
-                      >
-                        {isPass ? `Passed (${userRating})` : `Failed (${userRating})`}
-                      </span>
+                    <div className="flex items-center justify-between border-b border-border/40 pb-2">
+                      <span className="font-bold text-foreground">Card #{idx + 1}</span>
+                      
+                      {isRight && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                          <CheckCircle2 className="h-3 w-3" />
+                          <span>Right</span>
+                        </span>
+                      )}
+                      
+                      {isFail && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-rose-500/10 text-rose-500 border border-rose-500/20">
+                          <XCircle className="h-3 w-3" />
+                          <span>Failed</span>
+                        </span>
+                      )}
+                      
+                      {isSkipped && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                          <AlertTriangle className="h-3 w-3" />
+                          <span>Skipped</span>
+                        </span>
+                      )}
                     </div>
 
                     <div className="space-y-1">
-                      <p className="font-bold text-foreground">Q: {card.front}</p>
-                      <p className="text-muted-foreground">A: {card.back}</p>
+                      <p className="font-bold text-foreground">Question:</p>
+                      <p className="text-muted-foreground bg-muted/20 p-2.5 rounded-lg border border-border/40 leading-relaxed font-medium">
+                        {card.front}
+                      </p>
                     </div>
 
-                    {/* Explanation */}
-                    <div className="mt-2 rounded-xl bg-card/60 p-2.5 border border-border text-[11px] text-muted-foreground">
-                      <span className="font-bold text-foreground block mb-0.5">Explanation:</span>
-                      {card.explanation || card.back || "Concept reviewed during active study session."}
+                    <div className="space-y-1">
+                      <p className="font-bold text-indigo-500">Answer:</p>
+                      <p className="text-muted-foreground bg-muted/20 p-2.5 rounded-lg border border-border/40 leading-relaxed font-medium">
+                        {card.back}
+                      </p>
+                    </div>
+
+                    {/* Explanation display for all cards */}
+                    <div className="space-y-1">
+                      <p className="font-bold text-cyan-600 dark:text-cyan-400">Explanation & Rationale:</p>
+                      <p className="text-muted-foreground bg-indigo-500/[0.03] p-2.5 rounded-lg border border-indigo-500/10 leading-relaxed font-medium italic">
+                        {card.explanation || card.back || "Concept reviewed during study session."}
+                      </p>
                     </div>
                   </div>
                 );
@@ -469,7 +508,7 @@ export default function FlashcardReviewSession({
           </div>
 
           {/* Action buttons */}
-          <div className="flex items-center gap-3 pt-2">
+          <div className="flex items-center gap-3 pt-2 border-t border-border/60">
             <button
               onClick={() => {
                 setCurrentIndex(0);
@@ -477,13 +516,13 @@ export default function FlashcardReviewSession({
                 setRatings({});
                 setSessionCompleted(false);
               }}
-              className="flex-1 cursor-pointer rounded-xl border border-border bg-card py-3 text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-foreground transition"
+              className="flex-1 cursor-pointer rounded-xl border border-border bg-card py-3 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition"
             >
-              Restart
+              Restart Session
             </button>
             <Link
               href="/dashboard/study"
-              className="flex-1 cursor-pointer rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white hover:bg-indigo-500 transition text-center"
+              className="flex-1 cursor-pointer rounded-xl bg-indigo-600 py-3 text-xs font-bold text-white hover:bg-indigo-500 transition text-center"
             >
               Finish
             </Link>

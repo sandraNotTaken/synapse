@@ -106,7 +106,7 @@ ${content.replace(/<img[^>]+>/g, "")}`;
       }
 
       const { text } = await generateText({
-        model: groq("meta-llama/llama-4-scout-17b-16e-instruct"),
+        model: groq("llama-3.2-11b-vision-preview"),
         system: systemPrompt,
         messages: [
           {
@@ -128,8 +128,9 @@ ${content.replace(/<img[^>]+>/g, "")}`;
 
     let object: { cards?: Array<{ front: string; back: string }> } = {};
     try {
-      const cleanedText = textResult.replace(/```json/g, "").replace(/```/g, "").trim();
-      object = JSON.parse(cleanedText);
+      const match = textResult.match(/\{[\s\S]*\}/);
+      const jsonString = match ? match[0] : textResult;
+      object = JSON.parse(jsonString);
     } catch (parseError) {
       console.error("Failed to parse JSON response:", textResult);
       return NextResponse.json(

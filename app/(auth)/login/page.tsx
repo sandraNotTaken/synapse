@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import AuthNavbar from "@/components/auth/auth-navbar";
 import LoginForm from "@/components/auth/login-form";
 import FeaturedCourse from "@/components/auth/featured-course";
@@ -27,7 +28,14 @@ export default function LoginPage() {
           </p>
 
           <div className="mt-6">
-            <LoginForm />
+            <Suspense fallback={
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse" />
+                <span>Loading login portal...</span>
+              </div>
+            }>
+              <LoginForm />
+            </Suspense>
           </div>
         </div>
 

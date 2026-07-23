@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
       }
 
       const { text } = await generateText({
-        model: groq("meta-llama/llama-4-scout-17b-16e-instruct"),
+        model: groq("llama-3.2-11b-vision-preview"),
         system: systemPrompt,
         messages: [
           {

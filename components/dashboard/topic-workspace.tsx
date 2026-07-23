@@ -270,9 +270,22 @@ export default function TopicWorkspace({
               loading={loadingAction}
             />
 
-            {/* AI Practice Exam Panel */}
-            <div className="rounded-2xl border border-border bg-card/60 p-5 backdrop-blur-xl">
-              <ExamPanel topicId={topicId} />
+            {/* AI Practice Exam Promo Card */}
+            <div className="rounded-2xl border border-border bg-card/60 p-5 backdrop-blur-xl space-y-4">
+              <div className="flex items-center gap-2 border-b border-border/40 pb-3">
+                <GraduationCap className="h-5 w-5 text-indigo-500" />
+                <h3 className="text-sm font-bold text-foreground">AI Practice Exam</h3>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Test your knowledge with a custom 4-question MCQ mock exam generated specifically from your notes to earn <strong className="text-emerald-500 font-bold">+50 XP</strong>.
+              </p>
+              <Link
+                href={`/dashboard/topics/${topicId}/exam`}
+                className="w-full text-center rounded-xl bg-indigo-600 hover:bg-indigo-500 py-2.5 text-xs font-bold text-white transition flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-indigo-600/10"
+              >
+                <Sparkles className="h-4 w-4" />
+                Open Exam Workspace
+              </Link>
             </div>
 
             {/* Feynman Technique Evaluation Panel */}
