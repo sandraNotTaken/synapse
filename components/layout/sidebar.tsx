@@ -195,7 +195,7 @@ export default function Sidebar({
                           {/* Render nested topics */}
                           {course.topics && course.topics.length > 0 && (
                             <div className="ml-4 space-y-1.5 pt-1">
-                              {course.topics.map((topic) => {
+                              {course.topics.map((topic: any) => {
                                 const isTopicActive = pathname === `/dashboard/topics/${topic.id}`;
                                 return (
                                   <Link

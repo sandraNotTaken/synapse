@@ -148,7 +148,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
               {results.topics.length > 0 && (
                 <div className="space-y-1.5">
                   <span className="text-[10px] uppercase font-bold text-muted-foreground px-2">Topic Notes</span>
-                  {results.topics.map((topic) => (
+                  {results.topics.map((topic: any) => (
                     <button
                       key={topic.id}
                       onClick={() => navigateTo(`/dashboard/topics/${topic.id}`)}
