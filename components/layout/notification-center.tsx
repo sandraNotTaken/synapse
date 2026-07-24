@@ -8,8 +8,10 @@ import {
   clearAllNotifications,
   generateSimulatedNotifications,
 } from "@/app/dashboard/study/notification-actions";
+import { useOffline } from "@/components/providers/offline-provider";
 
 export default function NotificationCenter() {
+  const { isOffline } = useOffline();
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -19,6 +21,7 @@ export default function NotificationCenter() {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   const loadNotifications = async () => {
+    if (isOffline) return;
     try {
       const data = await getUserNotifications();
       setNotifications(data);
@@ -33,12 +36,12 @@ export default function NotificationCenter() {
     // Poll notifications every 30 seconds
     const interval = setInterval(loadNotifications, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isOffline]);
 
   // Trigger simulations when opening dropdown to keep goals/reviews up-to-date
   const handleToggle = () => {
     setIsOpen(!isOpen);
-    if (!isOpen) {
+    if (!isOpen && !isOffline) {
       startTransition(async () => {
         await generateSimulatedNotifications();
         await loadNotifications();

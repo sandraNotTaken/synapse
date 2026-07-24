@@ -1,4 +1,4 @@
-const CACHE_NAME = "synapse-cache-v5";
+const CACHE_NAME = "synapse-cache-v6";
 const OFFLINE_URL = "/offline.html";
 
 const PRECACHE_ASSETS = [
@@ -48,12 +48,16 @@ self.addEventListener("activate", (event) => {
 
 // Fetch Event: Smart Offline Caching for Next.js & NextAuth Session Preservation
 self.addEventListener("fetch", (event) => {
+  // Only handle GET requests
   if (event.request.method !== "GET") return;
 
   const url = new URL(event.request.url);
 
-  // Ignore Webpack HMR dev sockets
-  if (url.pathname.startsWith("/_next/webpack-hmr")) {
+  // Ignore Webpack and Turbopack HMR dev sockets
+  if (
+    url.pathname.startsWith("/_next/webpack-hmr") ||
+    url.pathname.startsWith("/_next/hmr")
+  ) {
     return;
   }
 
@@ -92,7 +96,7 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
-        // Cache valid 200 responses for static assets and HTML pages
+        // Cache valid 200 responses for static assets, HTML pages, and Next.js RSC streams
         if (
           networkResponse &&
           networkResponse.status === 200 &&
@@ -100,7 +104,10 @@ self.addEventListener("fetch", (event) => {
         ) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            const cacheKey = url.searchParams.has("_rsc") ? url.pathname : event.request;
+            // Differentiate key between Next.js React Server Component (RSC) payload and HTML page
+            const cacheKey = url.searchParams.has("_rsc")
+              ? url.pathname + "__rsc"
+              : event.request;
             cache.put(cacheKey, responseToCache);
           });
         }
@@ -108,16 +115,23 @@ self.addEventListener("fetch", (event) => {
       })
       .catch(async () => {
         // Network Offline Fallback Mode:
+        const cacheKey = url.searchParams.has("_rsc")
+          ? url.pathname + "__rsc"
+          : event.request;
 
-        // 1. Try exact request match in cache
-        let cachedResponse = await caches.match(event.request);
+        // 1. Try matching the specific cache key (exact HTML request or normalized RSC key)
+        let cachedResponse = await caches.match(cacheKey);
         if (cachedResponse) return cachedResponse;
 
-        // 2. Try URL pathname match (ignoring ?_rsc=... query params)
+        // 2. Try matching the exact event request
+        cachedResponse = await caches.match(event.request);
+        if (cachedResponse) return cachedResponse;
+
+        // 3. Try fallback URL pathname match
         cachedResponse = await caches.match(url.pathname);
         if (cachedResponse) return cachedResponse;
 
-        // 3. Fallback for client navigation or RSC requests
+        // 4. Fallback for client navigation or RSC requests
         if (event.request.mode === "navigate" || url.searchParams.has("_rsc")) {
           const dashboardPage = await caches.match("/dashboard");
           if (dashboardPage) return dashboardPage;
@@ -126,7 +140,7 @@ self.addEventListener("fetch", (event) => {
           if (offlinePage) return offlinePage;
         }
 
-        // 4. Default fallback offline HTML
+        // 5. Default fallback offline HTML
         const fallback = await caches.match(OFFLINE_URL);
         if (fallback) return fallback;
 

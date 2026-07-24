@@ -26,6 +26,9 @@ export default function TopicExamClient({
   const [submitting, setSubmitting] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
 
+  // Dynamic question count state (1 to 50)
+  const [questionCount, setQuestionCount] = useState(5);
+
   // Exam timer states
   const [secondsElapsed, setSecondsElapsed] = useState(0);
 
@@ -46,7 +49,7 @@ export default function TopicExamClient({
     setActiveIdx(0);
     setSecondsElapsed(0);
     try {
-      const res = await generatePracticeExam(topicId);
+      const res = await generatePracticeExam(topicId, questionCount);
       if (res.success && res.questions) {
         setQuestions(res.questions);
       }
@@ -135,18 +138,39 @@ export default function TopicExamClient({
             </p>
           </div>
 
-          <div className="max-w-sm mx-auto p-4 rounded-2xl bg-muted/40 border border-border text-xs text-left space-y-2">
-            <div className="flex justify-between font-medium">
-              <span className="text-muted-foreground">Exam Format:</span>
-              <span className="font-bold text-foreground">Multiple Choice (MCQ)</span>
+          {/* Interactive Question Count Slider Selector */}
+          <div className="max-w-sm mx-auto p-5 rounded-2xl bg-card border border-border space-y-4">
+            <div className="space-y-2 text-left">
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground block text-center">
+                Configure Questions: <span className="text-indigo-500 font-black text-sm">{questionCount}</span>
+              </label>
+              <input
+                type="range"
+                min="1"
+                max="50"
+                value={questionCount}
+                onChange={(e) => setQuestionCount(Number(e.target.value))}
+                className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none"
+              />
+              <div className="flex justify-between text-[10px] text-muted-foreground font-bold px-1">
+                <span>1 Q</span>
+                <span>10 Q</span>
+                <span>20 Q</span>
+                <span>30 Q</span>
+                <span>40 Q</span>
+                <span>50 Q</span>
+              </div>
             </div>
-            <div className="flex justify-between font-medium">
-              <span className="text-muted-foreground">Questions Count:</span>
-              <span className="font-bold text-foreground">4 Custom Questions</span>
-            </div>
-            <div className="flex justify-between font-medium">
-              <span className="text-muted-foreground">XP Reward:</span>
-              <span className="font-bold text-emerald-500">+50 XP Level Points</span>
+
+            <div className="border-t border-border/40 pt-3 text-xs text-left space-y-2">
+              <div className="flex justify-between font-medium">
+                <span className="text-muted-foreground">Exam Format:</span>
+                <span className="font-bold text-foreground">Multiple Choice (MCQ)</span>
+              </div>
+              <div className="flex justify-between font-medium">
+                <span className="text-muted-foreground">XP Reward:</span>
+                <span className="font-bold text-emerald-500">+50 XP Level Points</span>
+              </div>
             </div>
           </div>
 
@@ -156,7 +180,7 @@ export default function TopicExamClient({
             className="w-full max-w-sm rounded-2xl bg-indigo-600 hover:bg-indigo-500 py-4 text-sm font-bold text-white transition flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-indigo-600/10 active:scale-[0.99] mx-auto"
           >
             {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
-            Generate custom AI Exam
+            Generate custom AI Exam ({questionCount} Qs)
           </button>
         </div>
       ) : (
@@ -180,11 +204,11 @@ export default function TopicExamClient({
             /* ACTIVE EXAM INTERFACE */
             <div className="grid lg:grid-cols-12 gap-6 items-start">
               {/* Question list Navigation Sidebar */}
-              <div className="lg:col-span-4 rounded-2xl border border-border bg-card/40 p-4 space-y-4 backdrop-blur-xl">
+              <div className="lg:col-span-4 rounded-2xl border border-border bg-card/40 p-4 space-y-4 backdrop-blur-xl max-h-[80vh] overflow-y-auto no-scrollbar shadow-lg">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground border-b border-border pb-2">
                   Questions Overview
                 </h3>
-                <div className="grid grid-cols-4 gap-2 lg:grid-cols-2">
+                <div className="grid grid-cols-4 gap-2 lg:grid-cols-3">
                   {questions.map((q, idx) => {
                     const answered = !!selectedAnswers[q.id];
                     const active = activeIdx === idx;
@@ -193,7 +217,7 @@ export default function TopicExamClient({
                       <button
                         key={idx}
                         onClick={() => setActiveIdx(idx)}
-                        className={`py-3 rounded-xl border text-xs font-bold transition flex flex-col items-center justify-center cursor-pointer ${
+                        className={`py-3.5 rounded-xl border text-xs font-bold transition flex flex-col items-center justify-center cursor-pointer ${
                           active
                             ? "border-indigo-500 bg-indigo-500/10 text-indigo-500"
                             : answered
@@ -202,8 +226,8 @@ export default function TopicExamClient({
                         }`}
                       >
                         <span>Q{idx + 1}</span>
-                        <span className="text-[9px] font-medium mt-0.5">
-                          {answered ? "Selected" : "Empty"}
+                        <span className="text-[8px] font-medium mt-0.5 opacity-80">
+                          {answered ? "Done" : "Empty"}
                         </span>
                       </button>
                     );
