@@ -84,7 +84,7 @@ export default async function CoursePage({ params }: PageProps) {
           </div>
         ) : (
           <div className="space-y-4">
-            {course.topics.map((topic) => (
+            {course.topics.map((topic: any) => (
               <Link
                 key={topic.id}
                 href={`/dashboard/topics/${topic.id}`}
