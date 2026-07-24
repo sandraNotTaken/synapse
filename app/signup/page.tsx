@@ -77,7 +77,7 @@ export default function SignUpPage() {
                   name="name"
                   type="text"
                   required
-                  placeholder="e.g. Esewioso Arugue"
+                  placeholder="e.g. Alex Smith"
                   className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:border-indigo-500 focus:outline-none transition"
                 />
               </div>
