@@ -6,6 +6,7 @@ import DeleteButton from "@/components/dashboard/delete-button";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { Topic } from "@prisma/client";
 
 interface PageProps {
   params: Promise<{
