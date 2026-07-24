@@ -116,18 +116,28 @@ export default function NotificationCenter() {
         onClick={handleToggle}
         className="relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-border bg-card/60 text-muted-foreground transition hover:bg-muted hover:text-foreground"
         aria-label="Notifications Center"
+        aria-expanded={isOpen}
+        aria-haspopup="dialog"
       >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-indigo-600 text-[9px] font-black text-white ring-2 ring-background animate-pulse">
-            {unreadCount}
-          </span>
+          <>
+            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-indigo-600 text-[9px] font-black text-white ring-2 ring-background animate-pulse">
+              {unreadCount}
+            </span>
+            <span className="sr-only">, {unreadCount} unread notifications</span>
+          </>
         )}
       </button>
 
       {/* Dropdown Container */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl border border-border bg-background/95 p-4 shadow-2xl backdrop-blur-xl animate-fade-in z-50">
+        <div
+          role="dialog"
+          aria-modal="false"
+          aria-label="Notifications Dropdown"
+          className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl border border-border bg-background/95 p-4 shadow-2xl backdrop-blur-xl animate-fade-in z-50"
+        >
           <div className="flex items-center justify-between border-b border-border/10 pb-3">
             <div className="flex items-center gap-1.5">
               <Sparkles className="h-4 w-4 text-indigo-500" />

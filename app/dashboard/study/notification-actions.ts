@@ -138,16 +138,41 @@ export async function generateSimulatedNotifications() {
       (n) => n.type === "streak" && n.createdAt >= startOfToday
     );
 
-    // Calculate active streak count
-    let streakCount = 1;
+    // Calculate active streak count (consecutive days)
+    let streakCount = 0;
     if (user.studySessions.length > 0) {
-      const dates = user.studySessions.map((s) => {
-        const d = new Date(s.createdAt);
-        d.setUTCHours(0, 0, 0, 0);
-        return d.getTime();
+      const uniqueDays = new Set<string>();
+      user.studySessions.forEach((s) => {
+        const dateStr = s.createdAt.toISOString().split("T")[0];
+        uniqueDays.add(dateStr);
       });
-      const uniqueDates = Array.from(new Set(dates)).sort((a, b) => b - a);
-      streakCount = uniqueDates.length > 0 ? Math.max(1, uniqueDates.length) : 1;
+
+      const sortedDays = Array.from(uniqueDays).sort((a, b) => b.localeCompare(a));
+      const todayStr = new Date().toISOString().split("T")[0];
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split("T")[0];
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowStr = tomorrow.toISOString().split("T")[0];
+
+      const mostRecentStudyDate = sortedDays[0];
+      const isActive = mostRecentStudyDate === todayStr || 
+                       mostRecentStudyDate === yesterdayStr || 
+                       mostRecentStudyDate === tomorrowStr;
+
+      if (isActive) {
+        let checkDate = new Date(mostRecentStudyDate + "T00:00:00.000Z");
+        while (true) {
+          const checkStr = checkDate.toISOString().split("T")[0];
+          if (sortedDays.includes(checkStr)) {
+            streakCount++;
+            checkDate.setUTCDate(checkDate.getUTCDate() - 1);
+          } else {
+            break;
+          }
+        }
+      }
     }
 
     if (!hasStreakNotif && streakCount >= 1) {

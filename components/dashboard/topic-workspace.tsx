@@ -312,15 +312,21 @@ export default function TopicWorkspace({
 
       {/* Summary Modal */}
       {summary && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="summary-modal-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+        >
           <div className="w-full max-w-2xl overflow-hidden rounded-3xl border border-border bg-card shadow-2xl">
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
               <div className="flex items-center gap-2">
                 <FileText className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
-                <h3 className="font-semibold text-foreground text-lg">AI Notes Summary</h3>
+                <h3 id="summary-modal-title" className="font-semibold text-foreground text-lg">AI Notes Summary</h3>
               </div>
               <button
                 onClick={() => setSummary(null)}
+                aria-label="Close notes summary"
                 className="cursor-pointer rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 <X size={20} />
@@ -356,15 +362,21 @@ export default function TopicWorkspace({
 
       {/* Explain Tutor Slide-out Panel */}
       {explanation && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="tutor-modal-title"
+          className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm"
+        >
           <div className="h-full w-full max-w-lg border-l border-border bg-card shadow-2xl flex flex-col justify-between">
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
-                <h3 className="font-semibold text-foreground text-lg">AI Tutor Explanation</h3>
+                <h3 id="tutor-modal-title" className="font-semibold text-foreground text-lg">AI Tutor Explanation</h3>
               </div>
               <button
                 onClick={() => setExplanation(null)}
+                aria-label="Close tutor explanation"
                 className="cursor-pointer rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 <X size={20} />
@@ -387,12 +399,17 @@ export default function TopicWorkspace({
 
       {/* Flashcards Success Modal */}
       {flashcardSuccess && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="flashcard-success-modal-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+        >
           <div className="w-full max-w-md overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-2xl text-center space-y-4">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
               <Brain className="h-6 w-6" />
             </div>
-            <h3 className="text-xl font-bold text-foreground">Flashcards Ready!</h3>
+            <h3 id="flashcard-success-modal-title" className="text-xl font-bold text-foreground">Flashcards Ready!</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">{flashcardSuccess.message}</p>
             <div className="flex items-center gap-3 pt-2">
               <button
@@ -414,15 +431,21 @@ export default function TopicWorkspace({
 
       {/* Quiz Modal */}
       {quizQuestions && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="quiz-modal-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+        >
           <div className="w-full max-w-xl overflow-hidden rounded-3xl border border-border bg-card shadow-2xl flex flex-col max-h-[90vh]">
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
               <div className="flex items-center gap-2">
                 <GraduationCap className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
-                <h3 className="font-semibold text-foreground text-lg">Interactive Quiz</h3>
+                <h3 id="quiz-modal-title" className="font-semibold text-foreground text-lg">Interactive Quiz</h3>
               </div>
               <button
                 onClick={() => setQuizQuestions(null)}
+                aria-label="Close quiz dialog"
                 className="cursor-pointer rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 <X size={20} />

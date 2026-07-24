@@ -141,10 +141,11 @@ export default function TopicExamClient({
           {/* Interactive Question Count Slider Selector */}
           <div className="max-w-sm mx-auto p-5 rounded-2xl bg-card border border-border space-y-4">
             <div className="space-y-2 text-left">
-              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground block text-center">
+              <label htmlFor="question-count-slider" className="text-xs font-bold uppercase tracking-wider text-muted-foreground block text-center">
                 Configure Questions: <span className="text-indigo-500 font-black text-sm">{questionCount}</span>
               </label>
               <input
+                id="question-count-slider"
                 type="range"
                 min="1"
                 max="50"
@@ -217,6 +218,7 @@ export default function TopicExamClient({
                       <button
                         key={idx}
                         onClick={() => setActiveIdx(idx)}
+                        aria-label={`Question ${idx + 1}: ${answered ? "Answered" : "Unanswered"}${active ? ", currently active" : ""}`}
                         className={`py-3.5 rounded-xl border text-xs font-bold transition flex flex-col items-center justify-center cursor-pointer ${
                           active
                             ? "border-indigo-500 bg-indigo-500/10 text-indigo-500"

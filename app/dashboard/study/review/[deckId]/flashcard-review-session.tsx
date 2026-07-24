@@ -228,9 +228,19 @@ export default function FlashcardReviewSession({
 
           {/* 3D Flip Card Container */}
           <div
-            className="group relative min-h-[440px] w-full cursor-pointer"
+            className="group relative min-h-[440px] w-full cursor-pointer rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
             style={{ perspective: "1000px" }}
             onClick={() => setIsFlipped(!isFlipped)}
+            tabIndex={0}
+            role="button"
+            aria-label={`Flashcard: ${currentCard.front}. Click or press space to flip and reveal answer.`}
+            aria-live="polite"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setIsFlipped(!isFlipped);
+              }
+            }}
           >
             {/* The actual Card flipping node */}
             <div

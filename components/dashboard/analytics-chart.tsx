@@ -180,7 +180,11 @@ export default function AnalyticsChart({ weeklyData, dailyGoal }: AnalyticsChart
             viewBox={`0 0 ${width} ${height}`}
             className="w-full h-52 overflow-visible select-none"
             onMouseLeave={() => setHoveredIdx(null)}
+            role="img"
+            aria-label={`Interactive SVG Area Chart representing daily study statistics over the last 7 days. Metric displayed: ${metricMode === "mins" ? "focus minutes" : "flashcards reviewed"}.`}
           >
+            <title>{metricMode === "mins" ? "Daily Focus Minutes" : "Daily Flashcards Reviewed"}</title>
+            <desc>{`A line graph showing daily statistics. Days listed from left to right: ${weeklyData.map(d => `${d.day} (${metricMode === "mins" ? d.mins : d.cardsReviewed} units)`).join(", ")}.`}</desc>
             <defs>
               <linearGradient id="twitterAreaGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#6366f1" stopOpacity="0.2" />

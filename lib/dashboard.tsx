@@ -78,23 +78,22 @@ export async function getDashboardData() {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toISOString().split("T")[0];
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split("T")[0];
 
-    let currentCheckStr = todayStr;
-    if (!sortedDays.includes(todayStr)) {
-      if (sortedDays.includes(yesterdayStr)) {
-        currentCheckStr = yesterdayStr;
-      } else {
-        currentCheckStr = "";
-      }
-    }
+    const mostRecentStudyDate = sortedDays[0];
+    const isActive = mostRecentStudyDate === todayStr || 
+                     mostRecentStudyDate === yesterdayStr || 
+                     mostRecentStudyDate === tomorrowStr;
 
-    if (currentCheckStr !== "") {
-      let checkDate = new Date(currentCheckStr);
+    if (isActive) {
+      let checkDate = new Date(mostRecentStudyDate + "T00:00:00.000Z");
       while (true) {
         const checkStr = checkDate.toISOString().split("T")[0];
         if (sortedDays.includes(checkStr)) {
           streak++;
-          checkDate.setDate(checkDate.getDate() - 1);
+          checkDate.setUTCDate(checkDate.getUTCDate() - 1);
         } else {
           break;
         }
