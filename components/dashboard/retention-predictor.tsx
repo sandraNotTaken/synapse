@@ -18,6 +18,22 @@ export default function RetentionPredictor({ totalCards, dueCardsCount }: Retent
   const currentRetention = Math.round(Math.exp(-0.5 / stability) * 100); // Today
   const projectedRetention = Math.round(Math.exp(-decayDays / stability) * 100);
 
+  if (totalCards === 0) {
+    return (
+      <div className="rounded-2xl border border-border bg-card/40 p-8 text-center backdrop-blur-xl space-y-4">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
+          <Brain className="h-6 w-6" />
+        </div>
+        <div>
+          <h3 className="text-lg font-bold text-foreground">Memory Retention Predictor</h3>
+          <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed max-w-sm mx-auto">
+            Once you create courses and start reviewing flashcards, this panel will dynamically forecast your memory decay curves and optimal review windows.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/5 via-card/60 to-purple-500/5 p-6 backdrop-blur-xl space-y-6 shadow-xl relative overflow-hidden">
       {/* Background Subtle Ambient Glow */}
