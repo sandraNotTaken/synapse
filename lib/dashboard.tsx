@@ -159,5 +159,6 @@ export async function getDashboardData() {
     studyMinutesToday,
     dailyGoal: user.dailyGoal,
     recentCourses,
+    isNewUser: user.courses.length === 0,
   };
 }

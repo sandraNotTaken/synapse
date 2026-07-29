@@ -1,18 +1,21 @@
 interface DashboardHeaderProps {
   name?: string | null;
+  isNew?: boolean;
 }
 
-export function DashboardHeader({ name }: DashboardHeaderProps) {
+export function DashboardHeader({ name, isNew }: DashboardHeaderProps) {
   return (
     <div className="rounded-2xl border border-border bg-card/60 p-6 sm:p-8 backdrop-blur-xl space-y-2">
       <p className="text-xs font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
-        Study lounge
+        {isNew ? "Get started" : "Study lounge"}
       </p>
       <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
-        Welcome back{name ? `, ${name}` : ""}
+        {isNew ? `Welcome, ${name || "User"}` : `Welcome back${name ? `, ${name}` : ""}`}
       </h1>
       <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-2xl">
-        Keep the momentum going with a focused, beautifully paced study and review session.
+        {isNew
+          ? "Create a course using the sidebar to begin generating flashcards and managing your study tracks with AI."
+          : "Keep the momentum going with a focused, beautifully paced study and review session."}
       </p>
     </div>
   );

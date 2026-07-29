@@ -27,7 +27,7 @@ export default async function DashboardPage() {
 
   return (
     <main className="space-y-8">
-      <DashboardHeader name={data.user.name} />
+      <DashboardHeader name={data.user.name} isNew={data.isNewUser} />
 
       <StatsGrid
         totalCourses={data.totalCourses}

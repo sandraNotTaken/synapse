@@ -33,17 +33,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             where: { email: { equals: email, mode: "insensitive" } },
           });
 
-          // If user doesn't exist yet, automatically create their account
+          // If user doesn't exist, return null so they are forced to register/sign-up first
           if (!user) {
-            const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
-            user = await prisma.user.create({
-              data: {
-                email,
-                name: email.split("@")[0],
-                password: hashedPassword,
-              },
-            });
-            return user;
+            return null;
           }
 
           // If user exists and has a password, verify it
