@@ -31,7 +31,7 @@ export default async function CoursesPage() {
   });
 
   return (
-    <main className="space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+    <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-4xl font-bold tracking-tight text-foreground">
@@ -115,6 +115,6 @@ export default async function CoursesPage() {
           })}
         </div>
       )}
-    </main>
+    </div>
   );
 }

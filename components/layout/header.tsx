@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { PanelLeftClose, PanelLeft, User, Search, Command } from "lucide-react";
 import NotificationCenter from "./notification-center";
 import InstallPWAButton from "./install-pwa-button";
@@ -41,11 +42,11 @@ export default function Header({ collapsed, onToggleSidebar, user }: HeaderProps
           {/* Quick Search Bar Trigger */}
           <button
             onClick={() => setSearchOpen(true)}
-            className="hidden sm:flex items-center gap-3 rounded-xl border border-border bg-card/60 px-3.5 py-2 text-xs text-muted-foreground hover:border-indigo-500/40 hover:text-foreground transition cursor-pointer"
+            className="flex items-center justify-center sm:justify-start gap-3 rounded-xl border border-border bg-card/60 p-2 sm:px-3.5 sm:py-2 text-xs text-muted-foreground hover:border-indigo-500/40 hover:text-foreground transition cursor-pointer"
           >
             <Search className="h-3.5 w-3.5 text-indigo-500" />
-            <span>Search courses, notes, flashcards...</span>
-            <kbd className="flex items-center gap-0.5 rounded border border-border bg-muted px-1.5 py-0.5 text-[9px] font-mono font-bold text-muted-foreground">
+            <span className="hidden sm:inline">Search courses, notes, flashcards...</span>
+            <kbd className="hidden sm:flex items-center gap-0.5 rounded border border-border bg-muted px-1.5 py-0.5 text-[9px] font-mono font-bold text-muted-foreground">
               <Command className="h-2.5 w-2.5" /> K
             </kbd>
           </button>
@@ -63,7 +64,10 @@ export default function Header({ collapsed, onToggleSidebar, user }: HeaderProps
 
           {/* User avatar / profile summary */}
           {user && (
-            <div className="flex items-center gap-3 rounded-xl border border-border bg-card/60 pl-3 pr-4 py-1.5">
+            <Link
+              href="/dashboard/settings"
+              className="flex items-center gap-3 rounded-xl border border-border bg-card/60 pl-3 pr-4 py-1.5 hover:border-indigo-500/40 hover:bg-muted transition cursor-pointer"
+            >
               {user.image ? (
                 <img
                   src={user.image}
@@ -83,7 +87,7 @@ export default function Header({ collapsed, onToggleSidebar, user }: HeaderProps
                   {user.email}
                 </span>
               </div>
-            </div>
+            </Link>
           )}
         </div>
       </header>

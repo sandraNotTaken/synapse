@@ -4,7 +4,6 @@ import { LogOut } from "lucide-react";
 import { auth, signOut } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import SettingsClient from "@/components/dashboard/settings-client";
-import ExportDataButton from "@/components/dashboard/export-data-button";
 import { DayAnalytics } from "@/components/dashboard/analytics-chart";
 
 export default async function SettingsPage() {
@@ -83,7 +82,7 @@ export default async function SettingsPage() {
   }
 
   return (
-    <main className="mx-auto max-w-5xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+    <div className="space-y-8">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6">
         <div>
@@ -94,8 +93,6 @@ export default async function SettingsPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <ExportDataButton />
-
           <form
             action={async () => {
               "use server";
@@ -123,6 +120,6 @@ export default async function SettingsPage() {
         level={level}
         weeklyAnalytics={weeklyAnalytics}
       />
-    </main>
+    </div>
   );
 }
