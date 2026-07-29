@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Sparkles, Brain, FileText, GraduationCap, Copy, Check, Loader2, X, AlertTriangle, Upload } from "lucide-react";
+import { ArrowLeft, Sparkles, Brain, FileText, GraduationCap, Copy, Check, Loader2, X, AlertTriangle, Upload, Volume2, VolumeX } from "lucide-react";
 import TopicEditor from "./topic-editor";
 import AIToolbar from "./ai-toolbar";
 import ExamPanel from "./exam-panel";
@@ -72,6 +72,46 @@ export default function TopicWorkspace({
 
   // Tutor Explanation panel state
   const [explanation, setExplanation] = useState<string | null>(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
+  const toggleSpeech = () => {
+    if (typeof window === "undefined") return;
+    
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    } else {
+      if (!explanation) return;
+      const plainText = explanation
+        .replace(/[#*`_~]/g, "")
+        .replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1");
+      
+      const utterance = new SpeechSynthesisUtterance(plainText);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+      
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+      setIsSpeaking(true);
+    }
+  };
+
+  const handleCloseExplanation = () => {
+    if (typeof window !== "undefined") {
+      window.speechSynthesis.cancel();
+    }
+    setIsSpeaking(false);
+    setExplanation(null);
+  };
+
+  // Clean up audio speech on unmount
+  useEffect(() => {
+    return () => {
+      if (typeof window !== "undefined") {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   // Flashcards generation state
   const [flashcardSuccess, setFlashcardSuccess] = useState<{
@@ -374,20 +414,33 @@ export default function TopicWorkspace({
                 <Sparkles className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
                 <h3 id="tutor-modal-title" className="font-semibold text-foreground text-lg">AI Tutor Explanation</h3>
               </div>
-              <button
-                onClick={() => setExplanation(null)}
-                aria-label="Close tutor explanation"
-                className="cursor-pointer rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-              >
-                <X size={20} />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={toggleSpeech}
+                  aria-label={isSpeaking ? "Mute explanation" : "Read explanation aloud"}
+                  className="cursor-pointer rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition flex items-center justify-center"
+                >
+                  {isSpeaking ? (
+                    <VolumeX className="h-5 w-5 text-indigo-500 dark:text-indigo-400 animate-pulse" />
+                  ) : (
+                    <Volume2 className="h-5 w-5" />
+                  )}
+                </button>
+                <button
+                  onClick={handleCloseExplanation}
+                  aria-label="Close tutor explanation"
+                  className="cursor-pointer rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                >
+                  <X size={20} />
+                </button>
+              </div>
             </div>
             <div className="flex-1 overflow-y-auto p-6 text-foreground leading-relaxed space-y-1">
               {formatMarkdown(explanation)}
             </div>
             <div className="border-t border-border bg-muted/40 px-6 py-4 flex justify-end">
               <button
-                onClick={() => setExplanation(null)}
+                onClick={handleCloseExplanation}
                 className="cursor-pointer rounded-xl border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition hover:bg-muted"
               >
                 Close Tutor
