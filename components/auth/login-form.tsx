@@ -71,23 +71,26 @@ export default function LoginForm() {
       {/* Email & Password Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+          <label htmlFor="email" className="text-xs font-bold text-foreground flex items-center gap-1.5">
             <Mail className="h-3.5 w-3.5 text-indigo-500" />
             Email Address
           </label>
           <input
+            id="email"
+            name="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
             placeholder="you@example.com"
+            autoComplete="username"
             className="w-full rounded-xl border border-border bg-card/80 px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:border-indigo-500 focus:outline-none transition"
           />
         </div>
 
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+            <label htmlFor="password" className="text-xs font-bold text-foreground flex items-center gap-1.5">
               <Lock className="h-3.5 w-3.5 text-indigo-500" />
               Password
             </label>
@@ -99,10 +102,14 @@ export default function LoginForm() {
             </Link>
           </div>
           <input
+            id="password"
+            name="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
             placeholder="Enter your password"
+            autoComplete="current-password"
             className="w-full rounded-xl border border-border bg-card/80 px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:border-indigo-500 focus:outline-none transition"
           />
         </div>

@@ -75,8 +75,8 @@ export default function NeuralNetwork() {
         </motion.div>
       ))}
 
-      {/* Noise */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent,rgba(0,0,0,0.8))]" />
+      {/* Noise vignette */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent,rgba(255,255,255,0.75))] dark:bg-[radial-gradient(circle_at_center,transparent,rgba(0,0,0,0.85))]" />
     </div>
   );
 }

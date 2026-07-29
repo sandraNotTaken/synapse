@@ -69,57 +69,65 @@ export default function SignUpPage() {
           {!success && (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                <label htmlFor="name" className="text-xs font-bold text-foreground flex items-center gap-1.5">
                   <User className="h-3.5 w-3.5 text-indigo-500" />
                   Full Name
                 </label>
                 <input
+                  id="name"
                   name="name"
                   type="text"
                   required
+                  autoComplete="name"
                   placeholder="e.g. Alex Smith"
                   className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:border-indigo-500 focus:outline-none transition"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                <label htmlFor="email" className="text-xs font-bold text-foreground flex items-center gap-1.5">
                   <Mail className="h-3.5 w-3.5 text-indigo-500" />
                   Email Address
                 </label>
                 <input
+                  id="email"
                   name="email"
                   type="email"
                   required
+                  autoComplete="username"
                   placeholder="you@example.com"
                   className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:border-indigo-500 focus:outline-none transition"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                <label htmlFor="password" className="text-xs font-bold text-foreground flex items-center gap-1.5">
                   <Lock className="h-3.5 w-3.5 text-indigo-500" />
                   Password
                 </label>
                 <input
+                  id="password"
                   name="password"
                   type="password"
                   required
                   minLength={6}
+                  autoComplete="new-password"
                   placeholder="At least 6 characters"
                   className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:border-indigo-500 focus:outline-none transition"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                <label htmlFor="confirmPassword" className="text-xs font-bold text-foreground flex items-center gap-1.5">
                   <ShieldCheck className="h-3.5 w-3.5 text-indigo-500" />
                   Confirm Password
                 </label>
                 <input
+                  id="confirmPassword"
                   name="confirmPassword"
                   type="password"
                   required
+                  autoComplete="new-password"
                   placeholder="Re-enter password"
                   className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:border-indigo-500 focus:outline-none transition"
                 />
