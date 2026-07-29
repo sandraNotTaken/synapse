@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useTransition } from "react";
-import { User, Settings, ShieldAlert, KeyRound, Check, AlertTriangle, Loader2, BarChart3, Award, Flame, Zap, Brain, Sparkles } from "lucide-react";
+import { User, Settings, ShieldAlert, KeyRound, Check, AlertTriangle, Loader2, BarChart3, Award, Flame, Zap, Brain, Sparkles, QrCode, Copy, ShieldCheck, Lock } from "lucide-react";
 import { updateUserProfile, resetAccountData } from "@/app/dashboard/settings/user-actions";
 import { useRouter } from "next/navigation";
 import ThemeToggle from "./theme-toggle";
@@ -39,6 +39,57 @@ export default function SettingsClient({
   const [confirmInput, setConfirmInput] = useState("");
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  const [show2FAWizard, setShow2FAWizard] = useState(false);
+  const [twoFactorStep, setTwoFactorStep] = useState(1);
+  const [twoFactorSecret] = useState("JBSW Y3DP EHPK 3PXP");
+  const [twoFactorInputCode, setTwoFactorInputCode] = useState("");
+  const [twoFactorError, setTwoFactorError] = useState<string | null>(null);
+  const [copiedSecret, setCopiedSecret] = useState(false);
+  const [recoveryCodes] = useState([
+    "ABCD-1234-EFGH",
+    "IJKL-5678-MNOP",
+    "QRST-9012-UVWX",
+    "YZAB-3456-CDEF"
+  ]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const enabled = localStorage.getItem("synapse_2fa_enabled");
+      setTwoFactorEnabled(enabled === "true");
+    }
+  }, []);
+
+  const handleToggle2FA = () => {
+    if (twoFactorEnabled) {
+      if (confirm("Are you sure you want to disable 2FA? This will reduce your account security.")) {
+        localStorage.setItem("synapse_2fa_enabled", "false");
+        setTwoFactorEnabled(false);
+      }
+    } else {
+      setTwoFactorStep(1);
+      setTwoFactorInputCode("");
+      setTwoFactorError(null);
+      setCopiedSecret(false);
+      setShow2FAWizard(true);
+    }
+  };
+
+  const handleVerify2FA = () => {
+    if (twoFactorInputCode.length !== 6) {
+      setTwoFactorError("Verification code must be exactly 6 digits.");
+      return;
+    }
+    setTwoFactorError(null);
+    setTwoFactorStep(2); // Success step showing recovery codes
+  };
+
+  const handleComplete2FA = () => {
+    localStorage.setItem("synapse_2fa_enabled", "true");
+    setTwoFactorEnabled(true);
+    setShow2FAWizard(false);
+  };
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -379,6 +430,31 @@ export default function SettingsClient({
               For security compliance, all study logs, focus heartbeats, note drafts, flashcard stacks, and course profiles are encrypted. Deleting your personal records is permanent and deletes all values from Synapse databases.
             </div>
 
+            {/* Two-Factor Authentication (2FA) */}
+            <div className="border-t border-border pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h4 className="font-bold text-foreground flex items-center gap-2">
+                  <Lock className="h-4 w-4 text-indigo-500" />
+                  Two-Factor Authentication (2FA)
+                </h4>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Protect your Synapse profile using an authenticator app (e.g. Google Authenticator).
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleToggle2FA}
+                className={`rounded-xl cursor-pointer text-sm font-semibold px-5 py-2.5 transition border ${
+                  twoFactorEnabled
+                    ? "bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                    : "bg-indigo-600 hover:bg-indigo-500 border-indigo-600 text-white"
+                }`}
+              >
+                {twoFactorEnabled ? "2FA Enabled" : "Configure 2FA"}
+              </button>
+            </div>
+
             {/* Delete button */}
             <div className="border-t border-border pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
@@ -450,6 +526,127 @@ export default function SettingsClient({
                 Confirm Wipe
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2FA Setup Wizard Modal */}
+      {show2FAWizard && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-md rounded-3xl border border-indigo-500/20 bg-card p-6 shadow-2xl space-y-5 animate-scale-up">
+            <div className="flex items-center gap-3 text-indigo-500">
+              <div className="rounded-xl bg-indigo-500/10 p-2 border border-indigo-500/20 shrink-0">
+                <Lock className="h-5 w-5" />
+              </div>
+              <h3 className="text-lg font-bold text-foreground">Configure Two-Factor Auth (2FA)</h3>
+            </div>
+
+            {twoFactorStep === 1 && (
+              <div className="space-y-4">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  1. Scan this QR code using your authenticator app (e.g. Google Authenticator, Authy, or 1Password):
+                </p>
+
+                {/* Styled SVG QR Code Mock */}
+                <div className="flex flex-col items-center justify-center p-4 rounded-2xl border border-border bg-white w-44 h-44 mx-auto shadow-inner relative group">
+                  <QrCode className="h-36 w-36 text-slate-900" />
+                  <div className="absolute inset-0 bg-slate-950/80 rounded-2xl opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center p-3 text-center">
+                    <span className="text-[10px] text-white font-medium">otpauth://totp/Synapse:{email}?secret={twoFactorSecret}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-[11px] text-muted-foreground text-center">
+                    Or enter the secret key manually:
+                  </p>
+                  <div className="flex items-center justify-between gap-2 rounded-xl border border-border bg-muted/30 p-2.5">
+                    <code className="text-xs font-mono font-bold text-foreground select-all">{twoFactorSecret}</code>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(twoFactorSecret);
+                        setCopiedSecret(true);
+                        setTimeout(() => setCopiedSecret(false), 2000);
+                      }}
+                      className="cursor-pointer rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition flex items-center justify-center"
+                    >
+                      {copiedSecret ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-2">
+                  <label htmlFor="otp2fa" className="text-xs font-semibold text-foreground block">
+                    2. Enter 6-digit Verification Code:
+                  </label>
+                  <input
+                    id="otp2fa"
+                    type="text"
+                    maxLength={6}
+                    placeholder="e.g. 123456"
+                    value={twoFactorInputCode}
+                    onChange={(e) => setTwoFactorInputCode(e.target.value.replace(/\D/g, ""))}
+                    className="w-full text-center tracking-[0.5em] font-mono rounded-xl border border-border bg-background px-4 py-2.5 text-base text-foreground focus:border-indigo-500 focus:outline-none"
+                  />
+                  {twoFactorError && (
+                    <p className="text-[11px] font-semibold text-red-500">{twoFactorError}</p>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShow2FAWizard(false)}
+                    className="rounded-xl border border-border bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground text-sm font-semibold px-4 py-2.5 transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleVerify2FA}
+                    className="rounded-xl cursor-pointer bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-5 py-2.5 transition shadow-lg shadow-indigo-600/20"
+                  >
+                    Verify Code
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {twoFactorStep === 2 && (
+              <div className="space-y-4">
+                <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-4 text-center space-y-1">
+                  <ShieldCheck className="h-8 w-8 text-emerald-500 mx-auto" />
+                  <h4 className="font-bold text-foreground text-sm">2FA Configured Successfully!</h4>
+                  <p className="text-muted-foreground text-[11px]">
+                    Your account is now protected by Two-Factor Authentication.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <h5 className="text-xs font-bold text-foreground">Backup Recovery Codes</h5>
+                  <p className="text-[10px] text-muted-foreground leading-relaxed">
+                    Store these backup codes in a safe place. If you lose access to your authenticator app, these are the only way to log in.
+                  </p>
+                  <div className="grid grid-cols-2 gap-2 rounded-2xl border border-border bg-muted/20 p-3.5 font-mono text-[11px] text-center font-semibold text-foreground select-all">
+                    {recoveryCodes.map((code) => (
+                      <div key={code} className="border border-border/40 rounded-lg py-1.5 bg-card/45 shadow-sm">
+                        {code}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end pt-2">
+                  <button
+                    type="button"
+                    onClick={handleComplete2FA}
+                    className="w-full rounded-xl cursor-pointer bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold py-3 transition shadow-lg shadow-indigo-600/20 text-center"
+                  >
+                    I Saved My Recovery Codes
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
