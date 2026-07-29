@@ -25,22 +25,22 @@ export default function FeaturedCourse() {
 
         <div className="space-y-4 rounded-3xl border border-border bg-muted/40 p-5 my-6">
           <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
-            <span>Spaced Repetition</span>
-            <span className="text-foreground">SM-2 Algorithm</span>
+            <span>Memory Retention</span>
+            <span className="text-foreground">Optimal review intervals</span>
           </div>
           <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
             <span>Active Recall</span>
-            <span className="text-foreground">Custom Flashcards</span>
+            <span className="text-foreground">Test with custom flashcards</span>
           </div>
           <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
-            <span>Focus System</span>
-            <span className="text-foreground">Pomodoro Timer</span>
+            <span>Focus Mode</span>
+            <span className="text-foreground">Calm, timed study sessions</span>
           </div>
         </div>
 
         <div className="space-y-4">
           <div className="flex justify-between text-xs font-semibold text-muted-foreground">
-            <span>Core Features Readiness</span>
+            <span>Daily Study Target</span>
             <span className="font-bold text-foreground">100%</span>
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-muted">
