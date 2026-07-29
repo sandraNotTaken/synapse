@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useTransition } from "react";
-import { User, Settings, ShieldAlert, KeyRound, Check, AlertTriangle, Loader2, BarChart3, Award, Flame, Zap, Brain, Sparkles, QrCode, Copy, ShieldCheck, Lock } from "lucide-react";
+import { User, Settings, ShieldAlert, KeyRound, Check, AlertTriangle, Loader2, BarChart3, Award, Flame, Zap, Brain, Sparkles, QrCode, Copy, ShieldCheck, Lock, BookOpen, GraduationCap, Timer } from "lucide-react";
 import { updateUserProfile, resetAccountData } from "@/app/dashboard/settings/user-actions";
 import { useRouter } from "next/navigation";
 import ThemeToggle from "./theme-toggle";
@@ -147,7 +147,7 @@ export default function SettingsClient({
           }`}
         >
           <User className="h-4 w-4" />
-          Profile & Badges
+          Profile Settings
         </button>
 
         <button
@@ -204,50 +204,23 @@ export default function SettingsClient({
         {/* Profile tab */}
         {activeTab === "profile" && (
           <div className="rounded-3xl border border-border bg-card/60 p-6 backdrop-blur-xl space-y-6">
+            <div>
+              <h2 className="text-xl font-bold text-foreground">Profile Settings</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Customize your public display name and read our active study recommendations.
+              </p>
+            </div>
+
+            {/* Profile Avatar & Email Header */}
+            <div className="flex items-center gap-4 border-b border-border pb-6">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-indigo-500/10 text-lg font-bold text-indigo-600 dark:text-indigo-400 border border-indigo-500/30">
+                {initials}
+              </div>
               <div>
-                <h2 className="text-xl font-bold text-foreground">Profile Settings</h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Customize your public display name and view your gamification rank.
-                </p>
+                <h4 className="font-bold text-foreground">{name}</h4>
+                <p className="text-xs text-muted-foreground">{email}</p>
               </div>
-
-              {/* Avatar & XP Level */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-6">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/10 text-xl font-bold text-indigo-600 dark:text-indigo-400 border border-indigo-500/30">
-                    {initials}
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-foreground">{name}</h4>
-                    <p className="text-xs text-muted-foreground mt-0.5">{email}</p>
-                  </div>
-                </div>
-
-                {/* Level badge */}
-                <div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/10 p-3.5 flex items-center gap-3">
-                  <div className="rounded-xl bg-indigo-600 p-2 text-white shadow-md shadow-indigo-600/20">
-                    <Zap className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] uppercase font-bold text-indigo-600 dark:text-indigo-400">Level {level} Thinker</span>
-                    <h5 className="text-sm font-black text-foreground">{xp} Total XP</h5>
-                  </div>
-                </div>
-              </div>
-
-              {/* XP Progress bar */}
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs font-semibold">
-                  <span className="text-muted-foreground">XP Progress to Level {level + 1}</span>
-                  <span className="text-indigo-600 dark:text-indigo-400">{xp % 100} / 100 XP</span>
-                </div>
-                <div className="h-2.5 w-full rounded-full bg-muted overflow-hidden">
-                  <div
-                    className="h-full bg-indigo-600 transition-all duration-500 rounded-full"
-                    style={{ width: `${Math.min(100, xp % 100)}%` }}
-                  />
-                </div>
-              </div>
+            </div>
 
             {/* Profile form */}
             <form onSubmit={handleUpdateProfile} className="space-y-4">
@@ -283,28 +256,52 @@ export default function SettingsClient({
               </div>
             </form>
 
-            {/* Achievements Badges */}
+            {/* Active Study Guidelines */}
             <div className="border-t border-border pt-6 space-y-4">
               <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
-                <Award className="h-4 w-4 text-indigo-500" />
-                Achievements & Badges
+                <BookOpen className="h-4 w-4 text-indigo-500" />
+                Active Study Guidelines
               </h4>
 
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/10 p-3.5 text-center space-y-1">
-                  <Flame className="h-5 w-5 mx-auto text-orange-500 animate-pulse" />
-                  <h5 className="text-xs font-bold text-foreground">Streak Pioneer</h5>
-                  <p className="text-[10px] text-muted-foreground">Active learner</p>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-2xl border border-border bg-muted/30 p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-indigo-500 font-bold text-xs">
+                    <Sparkles className="h-4 w-4" />
+                    <span>Active Recall</span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    Test your memory rather than rereading. Use the practice exams generated from your notes to identify knowledge gaps before reviews.
+                  </p>
                 </div>
-                <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-center space-y-1">
-                  <Brain className="h-5 w-5 mx-auto text-emerald-500" />
-                  <h5 className="text-xs font-bold text-foreground">SM-2 Scholar</h5>
-                  <p className="text-[10px] text-muted-foreground">Spaced repetition</p>
+
+                <div className="rounded-2xl border border-border bg-muted/30 p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-indigo-500 font-bold text-xs">
+                    <Flame className="h-4 w-4" />
+                    <span>Spaced Repetition</span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    Review cards right as you are about to forget them. Set your daily review target limit to manage your workload consistently.
+                  </p>
                 </div>
-                <div className="rounded-2xl border border-cyan-500/30 bg-cyan-500/10 p-3.5 text-center space-y-1">
-                  <Sparkles className="h-5 w-5 mx-auto text-cyan-500" />
-                  <h5 className="text-xs font-bold text-foreground">Power User</h5>
-                  <p className="text-[10px] text-muted-foreground">Generated flashcards</p>
+
+                <div className="rounded-2xl border border-border bg-muted/30 p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-indigo-500 font-bold text-xs">
+                    <GraduationCap className="h-4 w-4" />
+                    <span>Feynman Technique</span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    Explain dense topics simply inside the workspace tutor panel. Teaching a concept is the fastest way to master and consolidate memory.
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-border bg-muted/30 p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-indigo-500 font-bold text-xs">
+                    <Timer className="h-4 w-4" />
+                    <span>Focus Intervals</span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    Study in 25-minute intervals followed by a 5-minute break. Use the top bar timer to keep track of your focus blocks.
+                  </p>
                 </div>
               </div>
             </div>
