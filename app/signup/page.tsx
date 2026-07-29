@@ -171,7 +171,7 @@ export default function SignUpPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full cursor-pointer rounded-xl bg-indigo-600 hover:bg-indigo-500 py-3 text-xs font-bold text-white transition disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20"
+                className="w-full cursor-pointer rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 py-3 text-xs font-bold text-white transition disabled:opacity-50 flex items-center justify-center gap-2 shadow-md shadow-indigo-600/10 active:scale-[0.98]"
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                 <span>Create Account</span>
@@ -212,7 +212,7 @@ export default function SignUpPage() {
                 type="button"
                 onClick={handleVerifyOTP}
                 disabled={loading}
-                className="w-full cursor-pointer rounded-xl bg-indigo-600 hover:bg-indigo-500 py-3 text-xs font-bold text-white transition disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20"
+                className="w-full cursor-pointer rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 py-3 text-xs font-bold text-white transition disabled:opacity-50 flex items-center justify-center gap-2 shadow-md shadow-indigo-600/10 active:scale-[0.98]"
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
                 <span>Verify & Create Account</span>
