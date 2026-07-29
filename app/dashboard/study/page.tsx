@@ -174,7 +174,7 @@ export default async function StudyPage() {
         </Card>
       </div>
 
-      {/* AI Memory Retention Predictor */}
+      {/* Memory Retention Predictor */}
       <RetentionPredictor totalCards={totalCards} dueCardsCount={reviewsToday} />
 
       {/* Confidence Map */}

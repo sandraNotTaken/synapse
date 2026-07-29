@@ -37,6 +37,8 @@ model Course {
   description String?
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   topics      Topic[]
+
+  @@index([userId])
 }
 
 model Topic {
@@ -50,6 +52,8 @@ model Topic {
 
   decks Deck[] @relation("TopicDecks")
   exams PracticeExam[]
+
+  @@index([courseId])
 }
 
 model Deck {
@@ -61,6 +65,8 @@ model Deck {
   topic   Topic  @relation("TopicDecks", fields: [topicId], references: [id], onDelete: Cascade)
 
   cards Card[]
+
+  @@index([topicId])
 }
 
 model Card {
@@ -76,6 +82,8 @@ model Card {
   easeFactor  Float    @default(2.5)  // SM-2 multiplier difficulty scale
   repetitions Int      @default(0)    // consecutive review runs
   dueDate     DateTime @default(now())
+
+  @@index([deckId])
 }
 
 model Account {
@@ -94,6 +102,7 @@ model Account {
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -102,6 +111,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model VerificationToken {
@@ -118,6 +129,8 @@ model StudySession {
   createdAt DateTime @default(now())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Notification {
@@ -129,6 +142,8 @@ model Notification {
   createdAt DateTime @default(now())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model PracticeExam {
@@ -141,4 +156,7 @@ model PracticeExam {
   topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([topicId])
+  @@index([userId])
 }

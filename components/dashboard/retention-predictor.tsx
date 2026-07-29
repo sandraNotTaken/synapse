@@ -31,14 +31,14 @@ export default function RetentionPredictor({ totalCards, dueCardsCount }: Retent
               <Brain className="h-4 w-4" />
             </div>
             <span className="text-xs font-bold uppercase tracking-wider text-indigo-500">
-              AI Standout Feature
+              Standout Feature
             </span>
           </div>
           <h3 className="text-xl font-extrabold text-foreground">
             Ebbinghaus Memory Retention Predictor
           </h3>
           <p className="text-xs text-muted-foreground">
-            AI-driven mathematical model simulating your memory decay curve and optimal review windows.
+            Advanced mathematical model simulating your memory decay curve and optimal review windows.
           </p>
         </div>
 

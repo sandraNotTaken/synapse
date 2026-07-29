@@ -24,7 +24,7 @@ export default function LoginPage() {
           </h1>
 
           <p className="mt-4 max-w-xl text-xs sm:text-sm text-muted-foreground leading-relaxed">
-            Turn your study notes into an intelligent learning system with AI flashcards & spaced repetition.
+            Turn your study notes into an intelligent learning system with automated flashcards & spaced repetition.
           </p>
 
           <div className="mt-6">

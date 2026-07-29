@@ -30,7 +30,7 @@ export default function ExamScheduler() {
         {
           day: "Days " + Math.max(2, Math.floor(daysLeft * 0.3) + 1) + "-" + Math.max(2, Math.floor(daysLeft * 0.7)),
           phase: "Active Recall & Exams",
-          action: "Take AI practice exams and complete spaced repetition card reviews.",
+          action: "Take practice exams and complete spaced repetition card reviews.",
           status: "High Priority",
         },
         {
@@ -50,14 +50,14 @@ export default function ExamScheduler() {
       <div className="flex items-center justify-between border-b border-border pb-3">
         <div className="flex items-center gap-2">
           <Calendar className="h-5 w-5 text-indigo-500" />
-          <h3 className="text-sm font-bold text-foreground">Exam Countdown & AI Revision Plan</h3>
+          <h3 className="text-sm font-bold text-foreground">Exam Countdown & Revision Plan</h3>
         </div>
       </div>
 
       {!schedule ? (
         <div className="space-y-4">
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Set your target exam date. Synapse will generate a daily AI revision schedule so you never have to cram.
+            Set your target exam date. Synapse will generate a daily revision schedule so you never have to cram.
           </p>
 
           <div className="grid gap-3 sm:grid-cols-2">

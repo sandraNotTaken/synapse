@@ -123,7 +123,7 @@ ${content.replace(/<img[^>]+>/g, "")}`;
     } catch (parseError) {
       console.error("Failed to parse JSON response:", textResult);
       return NextResponse.json(
-        { error: "AI generated an invalid response format. Please try again." },
+        { error: "Generated an invalid response format. Please try again." },
         { status: 500 }
       );
     }

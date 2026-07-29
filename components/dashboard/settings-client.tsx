@@ -303,7 +303,7 @@ export default function SettingsClient({
                 </div>
                 <div className="rounded-2xl border border-cyan-500/30 bg-cyan-500/10 p-3.5 text-center space-y-1">
                   <Sparkles className="h-5 w-5 mx-auto text-cyan-500" />
-                  <h5 className="text-xs font-bold text-foreground">AI Power User</h5>
+                  <h5 className="text-xs font-bold text-foreground">Power User</h5>
                   <p className="text-[10px] text-muted-foreground">Generated flashcards</p>
                 </div>
               </div>

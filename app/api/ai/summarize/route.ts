@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("AI Summarize error:", error);
     return NextResponse.json(
-      { error: "Failed to generate summary. Please check your AI configuration." },
+      { error: "Failed to generate summary. Please check your model configuration." },
       { status: 500 }
     );
   }

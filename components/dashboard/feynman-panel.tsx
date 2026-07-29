@@ -41,7 +41,7 @@ export default function FeynmanPanel({ topicTitle }: FeynmanPanelProps) {
 
       <div className="rounded-2xl border border-border bg-card/60 p-4 space-y-3">
         <p className="text-xs text-muted-foreground leading-relaxed">
-          Explain <strong>{topicTitle}</strong> in your own words as if teaching a beginner. The AI will evaluate logic gaps and missing analogies.
+          Explain <strong>{topicTitle}</strong> in your own words as if teaching a beginner. The system will evaluate logic gaps and missing analogies.
         </p>
 
         <textarea
@@ -65,7 +65,7 @@ export default function FeynmanPanel({ topicTitle }: FeynmanPanelProps) {
         <div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/10 p-4 space-y-2 animate-fade-in text-xs">
           <div className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-300 font-bold">
             <CheckCircle2 className="h-4 w-4" />
-            <span>AI Tutor Feedback</span>
+            <span>Tutor Feedback</span>
           </div>
           <p className="text-muted-foreground leading-relaxed pt-1">
             {result}

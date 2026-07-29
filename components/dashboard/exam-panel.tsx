@@ -68,7 +68,7 @@ export default function ExamPanel({ topicId }: ExamPanelProps) {
       <div className="flex items-center justify-between border-b border-border/40 pb-3">
         <div className="flex items-center gap-2">
           <HelpCircle className="h-4 w-4 text-indigo-500" />
-          <h3 className="text-sm font-bold text-foreground">AI Practice Exam</h3>
+          <h3 className="text-sm font-bold text-foreground">Practice Exam</h3>
         </div>
         {questions.length > 0 && (
           <button
@@ -90,7 +90,7 @@ export default function ExamPanel({ topicId }: ExamPanelProps) {
           <div>
             <h4 className="text-sm font-bold text-foreground">Test Your Knowledge</h4>
             <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-              Generate an AI mock exam based on your topic notes to test recall and earn <strong>+50 XP</strong>.
+              Generate a mock exam based on your topic notes to test recall and earn <strong>+50 XP</strong>.
             </p>
           </div>
           <button

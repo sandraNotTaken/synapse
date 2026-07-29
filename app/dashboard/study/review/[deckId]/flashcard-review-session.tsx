@@ -90,7 +90,7 @@ export default function FlashcardReviewSession({
         <AlertCircle className="mx-auto h-12 w-12 text-muted-foreground" />
         <h3 className="text-xl font-bold text-foreground">No Cards Found</h3>
         <p className="text-sm text-muted-foreground">
-          This deck has no cards. Go to a topic workspace to generate some flashcards with AI.
+          This deck has no cards. Go to a topic workspace to request some flashcards.
         </p>
         <Link
           href="/dashboard/study"
@@ -303,7 +303,7 @@ export default function FlashcardReviewSession({
                   </p>
                   {currentCard.explanation && (
                     <div className="mt-4 rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-3.5 text-xs text-muted-foreground text-left max-w-xl">
-                      <span className="font-bold text-indigo-500 block mb-1">AI Explanation:</span>
+                      <span className="font-bold text-indigo-500 block mb-1">Tutor Explanation:</span>
                       {currentCard.explanation}
                     </div>
                   )}

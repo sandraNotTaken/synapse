@@ -249,7 +249,7 @@ export default function TopicWorkspace({
 
     const formattedSummary = `
       <hr />
-      <h2>AI Summary</h2>
+      <h2>Notes Summary</h2>
       ${htmlLines.filter((l) => l !== "").join("")}
     `;
     setContent((prev) => prev + formattedSummary);
@@ -277,7 +277,7 @@ export default function TopicWorkspace({
                 {topicTitle}
               </h1>
               <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                Write notes, organize your ideas, and use AI to study faster.
+                Write notes, organize your ideas, and study faster.
               </p>
             </div>
 
@@ -314,7 +314,7 @@ export default function TopicWorkspace({
             <div className="rounded-2xl border border-border bg-card/60 p-5 backdrop-blur-xl space-y-4">
               <div className="flex items-center gap-2 border-b border-border/40 pb-3">
                 <GraduationCap className="h-5 w-5 text-indigo-500" />
-                <h3 className="text-sm font-bold text-foreground">AI Practice Exam</h3>
+                <h3 className="text-sm font-bold text-foreground">Practice Exam</h3>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 Test your knowledge with a custom 4-question MCQ mock exam generated specifically from your notes to earn <strong className="text-emerald-500 font-bold">+50 XP</strong>.
@@ -362,7 +362,7 @@ export default function TopicWorkspace({
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
               <div className="flex items-center gap-2">
                 <FileText className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
-                <h3 id="summary-modal-title" className="font-semibold text-foreground text-lg">AI Notes Summary</h3>
+                <h3 id="summary-modal-title" className="font-semibold text-foreground text-lg">Notes Summary</h3>
               </div>
               <button
                 onClick={() => setSummary(null)}
@@ -412,7 +412,7 @@ export default function TopicWorkspace({
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
-                <h3 id="tutor-modal-title" className="font-semibold text-foreground text-lg">AI Tutor Explanation</h3>
+                <h3 id="tutor-modal-title" className="font-semibold text-foreground text-lg">Tutor Explanation</h3>
               </div>
               <div className="flex items-center gap-2">
                 <button

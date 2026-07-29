@@ -181,7 +181,7 @@ export default function TopicExamClient({
             className="w-full max-w-sm rounded-2xl bg-indigo-600 hover:bg-indigo-500 py-4 text-sm font-bold text-white transition flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-indigo-600/10 active:scale-[0.99] mx-auto"
           >
             {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
-            Generate custom AI Exam ({questionCount} Qs)
+            Generate custom Exam ({questionCount} Qs)
           </button>
         </div>
       ) : (
@@ -198,7 +198,7 @@ export default function TopicExamClient({
                 {courseTitle} ➔ {topicTitle}
               </span>
             </div>
-            <h1 className="mt-1 text-3xl font-black text-foreground">AI Practice Exam</h1>
+            <h1 className="mt-1 text-3xl font-black text-foreground">Practice Exam</h1>
           </div>
 
           {!submitted ? (
@@ -414,7 +414,7 @@ export default function TopicExamClient({
                         {q.explanation && (
                           <div className="rounded-xl bg-indigo-500/[0.03] border border-indigo-500/10 p-3.5 text-xs text-muted-foreground italic leading-relaxed">
                             <strong className="text-foreground block not-italic mb-1 font-bold">
-                              AI tutor explanation:
+                              Tutor explanation:
                             </strong>
                             {q.explanation}
                           </div>

@@ -134,7 +134,7 @@ ${content.replace(/<img[^>]+>/g, "")}`;
     } catch (parseError) {
       console.error("Failed to parse JSON response:", textResult);
       return NextResponse.json(
-        { error: "AI generated an invalid response format. Please try again." },
+        { error: "Generated an invalid response format. Please try again." },
         { status: 500 }
       );
     }
@@ -149,7 +149,7 @@ ${content.replace(/<img[^>]+>/g, "")}`;
     // Save cards to a new deck
     const deck = await prisma.deck.create({
       data: {
-        title: `AI Generated Deck - ${new Date().toLocaleDateString()}`,
+        title: `Generated Deck - ${new Date().toLocaleDateString()}`,
         topicId: topicId,
         cards: {
           create: object.cards.map((card) => ({

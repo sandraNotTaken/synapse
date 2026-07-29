@@ -82,7 +82,7 @@ export default function SignUpPage() {
             Create Your Account
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Join Synapse to master your study notes with AI flashcards & spaced repetition.
+            Join Synapse to master your study notes with automated flashcards & spaced repetition.
           </p>
         </div>
 

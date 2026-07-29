@@ -14,7 +14,7 @@ export function DashboardHeader({ name, isNew }: DashboardHeaderProps) {
       </h1>
       <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-2xl">
         {isNew
-          ? "Create a course using the sidebar to begin generating flashcards and managing your study tracks with AI."
+          ? "Create a course using the sidebar to begin generating flashcards and managing your study tracks."
           : "Keep the momentum going with a focused, beautifully paced study and review session."}
       </p>
     </div>

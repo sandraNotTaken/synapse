@@ -58,7 +58,7 @@ export default function AIToolbar({
       <div className="flex items-center justify-between border-b border-border pb-3">
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
-          <h3 className="font-bold text-sm text-foreground">AI Study Tools</h3>
+          <h3 className="font-bold text-sm text-foreground">Study Assistant Tools</h3>
         </div>
       </div>
 

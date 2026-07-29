@@ -56,7 +56,7 @@ export default async function DecksPage() {
             No decks available
           </h3>
           <p className="mt-2 text-muted-foreground">
-            Decks are automatically generated when you use AI or create custom cards inside topics.
+            Decks are automatically generated when you request flashcards or create custom cards inside topics.
           </p>
           <div className="mt-6 flex items-center justify-center gap-3">
             <Link
