@@ -9,51 +9,53 @@ export default function FeaturedCourse() {
       <div className="relative z-10">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <span className="rounded-full bg-indigo-500/20 px-3 py-1 text-xs uppercase tracking-[0.3em] text-indigo-500 dark:text-indigo-200">
-            Resume session
+            Study Space Preview
           </span>
-          <span className="rounded-full border border-border bg-muted/60 px-3 py-1 text-xs text-foreground">
-            72% complete
+          <span className="rounded-full border border-border bg-muted/60 px-3 py-1 text-xs text-foreground font-semibold">
+            All-in-one
           </span>
         </div>
 
-        <div>
-          <h2 className="text-4xl font-semibold text-foreground">Computer Engineering</h2>
-          <p className="mt-3 max-w-xl text-base leading-7 text-muted-foreground">
-            Continue your latest study track with a premium review card that feels calm and cinematic.
+        <div className="my-6">
+          <h2 className="text-3xl font-extrabold text-foreground tracking-tight">Your Knowledge Space</h2>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            Organize your courses, generate smart review decks, and retain information forever using dynamic spaced repetition.
           </p>
         </div>
 
-        <div className="space-y-4 rounded-3xl border border-border bg-muted/40 p-5">
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>Topics</span>
-            <span>18</span>
+        <div className="space-y-4 rounded-3xl border border-border bg-muted/40 p-5 my-6">
+          <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
+            <span>Spaced Repetition</span>
+            <span className="text-foreground">SM-2 Algorithm</span>
           </div>
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>Next up</span>
-            <span>Module 4</span>
+          <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
+            <span>Active Recall</span>
+            <span className="text-foreground">Custom Flashcards</span>
           </div>
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>Time estimate</span>
-            <span>22 min</span>
+          <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
+            <span>Focus System</span>
+            <span className="text-foreground">Pomodoro Timer</span>
           </div>
         </div>
 
-        <div className="space-y-6">
-          <div className="flex justify-between text-sm text-muted-foreground">
-            <span>Progress</span>
-            <span className="font-semibold text-foreground">72%</span>
+        <div className="space-y-4">
+          <div className="flex justify-between text-xs font-semibold text-muted-foreground">
+            <span>Core Features Readiness</span>
+            <span className="font-bold text-foreground">100%</span>
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-muted">
-            <div className="h-full w-[72%] rounded-full bg-gradient-to-r from-indigo-500 to-cyan-400" />
+            <div className="h-full w-full rounded-full bg-gradient-to-r from-indigo-500 to-cyan-400" />
           </div>
 
-          <Link
-            href="/dashboard"
-            className="inline-flex cursor-pointer items-center gap-3 rounded-full bg-gradient-to-r from-indigo-500 to-cyan-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:opacity-95"
-          >
-            Resume Learning
-            <ArrowRight size={18} />
-          </Link>
+          <div className="pt-2">
+            <Link
+              href="/dashboard"
+              className="inline-flex cursor-pointer items-center gap-3 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 px-6 py-3 text-xs font-bold text-white transition shadow-md shadow-indigo-600/10 active:scale-[0.98]"
+            >
+              <span>Explore Dashboard</span>
+              <ArrowRight size={16} />
+            </Link>
+          </div>
         </div>
       </div>
     </div>
