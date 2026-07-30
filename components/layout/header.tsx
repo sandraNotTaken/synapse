@@ -79,12 +79,9 @@ export default function Header({ collapsed, onToggleSidebar, user }: HeaderProps
                   <User className="h-4 w-4" />
                 </div>
               )}
-              <div className="hidden sm:flex flex-col text-left leading-none">
+              <div className="hidden sm:block text-left">
                 <span className="text-xs font-semibold text-foreground">
                   {user.name || "User"}
-                </span>
-                <span className="text-[10px] text-muted-foreground truncate max-w-[120px]">
-                  {user.email}
                 </span>
               </div>
             </Link>
