@@ -73,17 +73,43 @@ export default function StudyCalendar({ cards }: StudyCalendarProps) {
 
   return (
     <div className="rounded-3xl border border-indigo-500/10 bg-gradient-to-br from-indigo-500/5 via-card/50 to-purple-500/5 p-6 backdrop-blur-xl space-y-6 shadow-xl">
-      {/* Header */}
-      <div className="flex items-center gap-2.5 border-b border-border/40 pb-4">
-        <div className="rounded-xl bg-indigo-500/10 p-2 text-indigo-500 border border-indigo-500/20">
-          <Calendar className="h-5 w-5" />
+      {/* Header & Legend */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/40 pb-4">
+        <div className="flex items-center gap-2.5">
+          <div className="rounded-xl bg-indigo-500/10 p-2 text-indigo-500 border border-indigo-500/20">
+            <Calendar className="h-5 w-5" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-foreground">14-Day Study Forecast</h3>
+            <p className="text-xs text-muted-foreground">
+              See when your flashcards are due for review so you can plan ahead.
+            </p>
+          </div>
         </div>
-        <div>
-          <h3 className="text-lg font-bold text-foreground">14-Day Spaced Repetition Calendar</h3>
-          <p className="text-xs text-muted-foreground">
-            Forecast your review load and plan study sessions ahead of forgetfulness decay.
-          </p>
+
+        {/* Color Code Legend */}
+        <div className="flex flex-wrap items-center gap-3 text-[10px] font-bold text-muted-foreground bg-muted/40 px-3.5 py-1.5 rounded-xl border border-border/60">
+          <span className="uppercase tracking-widest text-[9px] opacity-75">Review Load:</span>
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            <span>Light (1-5)</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-amber-500" />
+            <span>Medium (6-15)</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-rose-500" />
+            <span>Heavy (16+)</span>
+          </div>
         </div>
+      </div>
+
+      {/* How it works explanation */}
+      <div className="text-[11px] leading-relaxed text-muted-foreground bg-indigo-500/5 border border-indigo-500/10 rounded-xl p-4">
+        <strong>💡 How it works:</strong> As you review flashcards and rate your memory confidence, Synapse automatically 
+        schedules the next study date for each card. The calendar below shows your upcoming review workload. 
+        Click any day to view details and start studying cards due on that date.
       </div>
 
       {/* 14-Day Forecast Grid */}
@@ -118,8 +144,8 @@ export default function StudyCalendar({ cards }: StudyCalendarProps) {
               onClick={() => setSelectedDayOffset(day.offset)}
               className={`flex flex-col items-center justify-between rounded-2xl border p-3.5 text-center transition cursor-pointer active:scale-95 select-none ${borderStyle}`}
             >
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground">
-                {day.dayName}
+              <span className={`text-[9px] font-extrabold uppercase tracking-wider ${isSelected ? 'text-indigo-600 dark:text-indigo-400 font-black' : 'text-muted-foreground'}`}>
+                {day.offset === 0 ? "Today" : day.offset === 1 ? "Tomorrow" : day.dayName}
               </span>
               <span className="text-xs font-black text-foreground mt-1">
                 {day.dayLabel.split(" ")[1]}
@@ -135,8 +161,18 @@ export default function StudyCalendar({ cards }: StudyCalendarProps) {
       {/* Selected Day Details Panel */}
       <div className="rounded-2xl border border-border bg-muted/15 p-5 space-y-4">
         <div className="flex items-center justify-between text-xs font-bold border-b border-border/40 pb-3">
-          <span className="text-foreground">
-            Review Forecast &middot; {selectedDay.date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+          <span className="text-foreground flex items-center gap-1.5">
+            <Brain className="h-4 w-4 text-indigo-500 shrink-0" />
+            {selectedDayOffset === 0 ? (
+              <span>Reviews Due Today</span>
+            ) : selectedDayOffset === 1 ? (
+              <span>Reviews Due Tomorrow</span>
+            ) : (
+              <span>Reviews Due in {selectedDayOffset} Days</span>
+            )}
+            <span className="text-[10px] text-muted-foreground font-medium">
+              ({selectedDay.date.toLocaleDateString("en-US", { month: "short", day: "numeric" })})
+            </span>
           </span>
           <span className="text-indigo-500 font-extrabold">
             {selectedDay.totalDue} {selectedDay.totalDue === 1 ? "card" : "cards"} due
@@ -148,7 +184,7 @@ export default function StudyCalendar({ cards }: StudyCalendarProps) {
             <CheckCircle2 className="h-8 w-8 text-emerald-500/80 mb-2" />
             <p className="text-xs font-semibold text-foreground">Perfect Memory Stability!</p>
             <p className="text-[10px] text-muted-foreground mt-0.5">
-              No spaced repetition card reviews are forecast for this date.
+              No spaced repetition card reviews are scheduled for this date.
             </p>
           </div>
         ) : (
