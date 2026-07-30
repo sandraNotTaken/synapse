@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import DeleteButton from "@/components/dashboard/delete-button";
 import ConfidenceMap from "@/components/dashboard/confidence-map";
 import RetentionPredictor from "@/components/dashboard/retention-predictor";
+import StudyCalendar from "@/components/dashboard/study-calendar";
 import { getDashboardData } from "@/lib/dashboard";
 
 export default async function StudyPage() {
@@ -28,6 +29,42 @@ export default async function StudyPage() {
   // Calculate total cards count for retention predictor
   const totalCards = await prisma.card.count({
     where: { deck: { topic: { course: { user: { email: session.user.email } } } } },
+  });
+
+  // Get all user cards with due dates and related course info for the calendar
+  const allCardsForCalendar = await prisma.card.findMany({
+    where: {
+      deck: {
+        topic: {
+          course: {
+            user: {
+              email: session.user.email,
+            },
+          },
+        },
+      },
+    },
+    select: {
+      id: true,
+      dueDate: true,
+      deck: {
+        select: {
+          id: true,
+          title: true,
+          topic: {
+            select: {
+              title: true,
+              course: {
+                select: {
+                  title: true,
+                  color: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   });
 
   // Get user's decks
@@ -173,6 +210,9 @@ export default async function StudyPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* 14-Day Study Calendar */}
+      <StudyCalendar cards={allCardsForCalendar as any} />
 
       {/* Memory Retention Predictor */}
       <RetentionPredictor totalCards={totalCards} dueCardsCount={reviewsToday} />

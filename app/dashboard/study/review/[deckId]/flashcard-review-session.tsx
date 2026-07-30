@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, RotateCw, Award, Calendar, Flame, AlertCircle, ChevronLeft, ChevronRight, WifiOff, CheckCircle2, XCircle, AlertTriangle, ShieldCheck } from "lucide-react";
+import { ArrowLeft, RotateCw, Award, Calendar, Flame, AlertCircle, ChevronLeft, ChevronRight, WifiOff, CheckCircle2, XCircle, AlertTriangle, ShieldCheck, Mic, MicOff } from "lucide-react";
 import { logStudySession, updateCardConfidence } from "@/app/dashboard/study/actions";
 import { useOffline } from "@/components/providers/offline-provider";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
@@ -31,8 +31,82 @@ export default function FlashcardReviewSession({
   const [isFlipped, setIsFlipped] = useState(false);
   const [ratings, setRatings] = useState<Record<string, "again" | "hard" | "good" | "easy" | "skipped">>({});
   const [sessionCompleted, setSessionCompleted] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState("");
+  const [similarityScore, setSimilarityScore] = useState<number | null>(null);
+
   const startTimeRef = useRef<number>(Date.now());
+  const recognitionRef = useRef<any>(null);
   const { isOffline, queueCardConfidence, queueStudySession } = useOffline();
+
+  const startListening = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (typeof window === "undefined") return;
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Speech recognition is not supported in this browser. Try Google Chrome.");
+      return;
+    }
+
+    try {
+      const rec = new SpeechRecognition();
+      recognitionRef.current = rec;
+      rec.continuous = false;
+      rec.interimResults = false;
+      rec.lang = "en-US";
+
+      rec.onstart = () => {
+        setIsListening(true);
+        setTranscript("Listening...");
+        setSimilarityScore(null);
+      };
+
+      rec.onresult = (event: any) => {
+        const resultText = event.results[0][0].transcript;
+        setTranscript(resultText);
+        calculateSimilarity(resultText, cards[currentIndex].back);
+      };
+
+      rec.onerror = (event: any) => {
+        console.error("Speech recognition error:", event);
+        setIsListening(false);
+      };
+
+      rec.onend = () => {
+        setIsListening(false);
+      };
+
+      rec.start();
+    } catch (err) {
+      console.error("Speech Recognition init error:", err);
+    }
+  };
+
+  const stopListening = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (err) {}
+    }
+    setIsListening(false);
+  };
+
+  const calculateSimilarity = (userText: string, correctText: string) => {
+    const clean = (str: string) => str.toLowerCase().replace(/[^a-z0-9 ]/g, "").split(" ").filter(Boolean);
+    const userWords = clean(userText);
+    const correctWords = clean(correctText);
+
+    if (correctWords.length === 0) {
+      setSimilarityScore(100);
+      return;
+    }
+
+    const matches = correctWords.filter((w) => userWords.includes(w));
+    const score = Math.round((matches.length / correctWords.length) * 100);
+    setSimilarityScore(score);
+  };
 
   useKeyboardShortcuts(
     {
@@ -148,6 +222,8 @@ export default function FlashcardReviewSession({
   const handlePrev = () => {
     if (currentIndex > 0) {
       setIsFlipped(false);
+      setTranscript("");
+      setSimilarityScore(null);
       setTimeout(() => {
         setCurrentIndex((prev) => prev - 1);
       }, 150);
@@ -162,6 +238,8 @@ export default function FlashcardReviewSession({
 
     if (currentIndex < cards.length - 1) {
       setIsFlipped(false);
+      setTranscript("");
+      setSimilarityScore(null);
       setTimeout(() => {
         setCurrentIndex((prev) => prev + 1);
       }, 150);
@@ -267,15 +345,45 @@ export default function FlashcardReviewSession({
                   </span>
                 </div>
 
-                <div className="flex-1 flex items-center justify-center text-center px-4 py-6">
+                <div className="flex-1 flex flex-col items-center justify-center text-center px-4 py-6 w-full">
                   <p className="text-xl sm:text-2xl font-bold leading-relaxed text-foreground max-w-2xl">
                     {currentCard.front}
                   </p>
+                  {transcript && (
+                    <div className="mt-6 rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-3.5 text-xs text-indigo-600 dark:text-indigo-400 text-left max-w-xl animate-fade-in w-full">
+                      <span className="font-bold block mb-1">Your Voice Answer:</span>
+                      "{transcript}"
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground font-semibold pt-3 border-t border-border/40">
-                  <RotateCw className="h-3.5 w-3.5 animate-pulse text-indigo-500" />
-                  <span>Click Card or press <kbd className="font-mono bg-muted px-1.5 py-0.5 rounded">Space</kbd> to reveal answer</span>
+                <div className="flex items-center justify-between gap-4 pt-3 border-t border-border/40">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground font-semibold">
+                    <RotateCw className="h-3.5 w-3.5 animate-pulse text-indigo-500" />
+                    <span>Flip card or press <kbd className="font-mono bg-muted px-1.5 py-0.5 rounded">Space</kbd></span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={isListening ? stopListening : startListening}
+                    className={`flex items-center justify-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition ${
+                      isListening
+                        ? "bg-rose-500 text-white animate-pulse"
+                        : "bg-indigo-500/10 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/20"
+                    }`}
+                  >
+                    {isListening ? (
+                      <>
+                        <MicOff className="h-3.5 w-3.5" />
+                        <span>Stop Mic</span>
+                      </>
+                    ) : (
+                      <>
+                        <Mic className="h-3.5 w-3.5" />
+                        <span>Speech Recall</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
 
@@ -297,12 +405,33 @@ export default function FlashcardReviewSession({
                   </span>
                 </div>
 
-                <div className="flex-1 flex flex-col items-center justify-center text-center overflow-y-auto no-scrollbar px-4 py-6">
+                <div className="flex-1 flex flex-col items-center justify-center text-center overflow-y-auto no-scrollbar px-4 py-6 w-full">
                   <p className="text-lg sm:text-xl font-medium leading-relaxed text-foreground max-w-2xl">
                     {currentCard.back}
                   </p>
+                  
+                  {similarityScore !== null && (
+                    <div className="mt-4 rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-3.5 text-xs text-indigo-600 dark:text-indigo-400 text-left max-w-xl w-full">
+                      <div className="flex items-center justify-between font-bold">
+                        <span>Speech Match Accuracy</span>
+                        <span className="text-indigo-500">{similarityScore}%</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden mt-1.5">
+                        <div
+                          className={`h-full transition-all duration-300 rounded-full ${
+                            similarityScore >= 80 ? "bg-emerald-500" : similarityScore >= 50 ? "bg-indigo-500" : similarityScore >= 20 ? "bg-amber-500" : "bg-rose-500"
+                          }`}
+                          style={{ width: `${similarityScore}%` }}
+                        />
+                      </div>
+                      <span className="block text-[10px] text-muted-foreground mt-2">
+                        Suggested confidence level rating: <strong className="text-foreground">{similarityScore >= 80 ? "Easy" : similarityScore >= 50 ? "Good" : similarityScore >= 20 ? "Hard" : "Again"}</strong>
+                      </span>
+                    </div>
+                  )}
+
                   {currentCard.explanation && (
-                    <div className="mt-4 rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-3.5 text-xs text-muted-foreground text-left max-w-xl">
+                    <div className="mt-4 rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-3.5 text-xs text-muted-foreground text-left max-w-xl w-full">
                       <span className="font-bold text-indigo-500 block mb-1">Tutor Explanation:</span>
                       {currentCard.explanation}
                     </div>

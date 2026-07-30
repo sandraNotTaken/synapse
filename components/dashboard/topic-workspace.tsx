@@ -7,6 +7,7 @@ import TopicEditor from "./topic-editor";
 import AIToolbar from "./ai-toolbar";
 import ExamPanel from "./exam-panel";
 import FeynmanPanel from "./feynman-panel";
+import PDFUploadButton from "./pdf-upload-button";
 import DocumentScannerModal from "./document-scanner-modal";
 import { logStudySession } from "@/app/dashboard/study/actions";
 
@@ -310,14 +311,14 @@ export default function TopicWorkspace({
               loading={loadingAction}
             />
 
-            {/* AI Practice Exam Promo Card */}
+            {/* Practice Exam Promo Card */}
             <div className="rounded-2xl border border-border bg-card/60 p-5 backdrop-blur-xl space-y-4">
               <div className="flex items-center gap-2 border-b border-border/40 pb-3">
                 <GraduationCap className="h-5 w-5 text-indigo-500" />
                 <h3 className="text-sm font-bold text-foreground">Practice Exam</h3>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Test your knowledge with a custom 4-question MCQ mock exam generated specifically from your notes to earn <strong className="text-emerald-500 font-bold">+50 XP</strong>.
+                Test your knowledge with a custom 4-question MCQ mock exam generated specifically from your notes to verify your active recall retention.
               </p>
               <Link
                 href={`/dashboard/topics/${topicId}/exam`}
@@ -327,6 +328,9 @@ export default function TopicWorkspace({
                 Open Exam Workspace
               </Link>
             </div>
+
+            {/* PDF-to-Deck Generator */}
+            <PDFUploadButton topicId={topicId} />
 
             {/* Feynman Technique Evaluation Panel */}
             <div className="rounded-2xl border border-border bg-card/60 p-5 backdrop-blur-xl">
