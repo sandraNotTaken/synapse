@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User, Mail, Lock, ArrowRight, Loader2, Sparkles, CheckCircle2, ShieldCheck } from "lucide-react";
+import { User, Mail, Lock, ArrowRight, Loader2, Sparkles, CheckCircle2, ShieldCheck, Eye, EyeOff } from "lucide-react";
 import Logo from "@/components/branding/logo";
 import { registerUser } from "./actions";
 
@@ -14,6 +14,8 @@ export default function SignUpPage() {
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [userOtpInput, setUserOtpInput] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [storedFormData, setStoredFormData] = useState<FormData | null>(null);
 
   const router = useRouter();
@@ -140,16 +142,25 @@ export default function SignUpPage() {
                   <Lock className="h-3.5 w-3.5 text-indigo-500" />
                   Password
                 </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  minLength={6}
-                  autoComplete="new-password"
-                  placeholder="At least 6 characters"
-                  className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:border-indigo-500 focus:outline-none transition"
-                />
+                <div className="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    minLength={6}
+                    autoComplete="new-password"
+                    placeholder="At least 6 characters"
+                    className="w-full rounded-xl border border-border bg-background pl-3.5 pr-10 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:border-indigo-500 focus:outline-none transition"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-1.5">
@@ -157,15 +168,24 @@ export default function SignUpPage() {
                   <ShieldCheck className="h-3.5 w-3.5 text-indigo-500" />
                   Confirm Password
                 </label>
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  required
-                  autoComplete="new-password"
-                  placeholder="Re-enter password"
-                  className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:border-indigo-500 focus:outline-none transition"
-                />
+                <div className="relative">
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    required
+                    autoComplete="new-password"
+                    placeholder="Re-enter password"
+                    className="w-full rounded-xl border border-border bg-background pl-3.5 pr-10 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:border-indigo-500 focus:outline-none transition"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
 
               <button
