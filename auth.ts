@@ -49,13 +49,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             if (!isValid) {
               return null;
             }
-          } else if (!user.password && password) {
-            // If legacy user had no password set, save this password for future logins
-            const hashedPassword = await bcrypt.hash(password, 10);
-            await prisma.user.update({
-              where: { id: user.id },
-              data: { password: hashedPassword },
-            });
+          } else {
+            // Account has no password set (e.g. legacy Google OAuth account).
+            // Direct password claiming at login is blocked to prevent account takeover.
+            return null;
           }
 
           return user;
