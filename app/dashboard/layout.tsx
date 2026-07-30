@@ -31,15 +31,8 @@ export default async function DashboardLayout({
     });
   }
 
-  // Pass user session as a plain serializable object to the client component
-  const user = session?.user
-    ? {
-        name: session.user.name,
-        email: session.user.email,
-        image: session.user.image,
-      }
-    : undefined;
-
+  // Pass user session as a plain serializable object to the client component, fetched fresh from DB
+  let user: { name?: string | null; email?: string | null; image?: string | null } | undefined = undefined;
   let dailyGoal = 45;
   let studyMinutesToday = 0;
 
@@ -49,11 +42,19 @@ export default async function DashboardLayout({
       select: {
         id: true,
         dailyGoal: true,
+        name: true,
+        email: true,
+        image: true,
       },
     });
 
     if (userRecord) {
       dailyGoal = userRecord.dailyGoal;
+      user = {
+        name: userRecord.name,
+        email: userRecord.email,
+        image: userRecord.image,
+      };
 
       const startOfToday = new Date();
       startOfToday.setUTCHours(0, 0, 0, 0);
@@ -72,6 +73,12 @@ export default async function DashboardLayout({
 
       const totalSecondsToday = sessionsToday.reduce((sum, s) => sum + s.duration, 0);
       studyMinutesToday = Math.round(totalSecondsToday / 60);
+    } else {
+      user = {
+        name: session.user.name,
+        email: session.user.email,
+        image: session.user.image,
+      };
     }
   }
 
