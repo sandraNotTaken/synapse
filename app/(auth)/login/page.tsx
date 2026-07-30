@@ -27,7 +27,7 @@ export default function LoginPage() {
             Turn your study notes into an intelligent learning system with automated flashcards & spaced repetition.
           </p>
 
-          <div className="mt-6">
+          <div className="mt-6 animate-scale-in">
             <Suspense fallback={
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse" />
@@ -39,7 +39,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="w-full lg:pt-4">
+        <div className="w-full lg:pt-4 animate-slide-up">
           <FeaturedCourse />
         </div>
       </section>

@@ -10,6 +10,10 @@ export const metadata: Metadata = {
   title: "Synapse",
   description: "Build knowledge that sticks.",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export const viewport: Viewport = {

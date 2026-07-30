@@ -75,7 +75,7 @@ export default function SignUpPage() {
       <div className="pointer-events-none absolute -top-40 -left-40 h-96 w-96 rounded-full bg-indigo-500/10 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-purple-500/10 blur-3xl" />
 
-      <div className="w-full max-w-md space-y-6">
+      <div className="w-full max-w-md space-y-6 animate-slide-up">
         <div className="text-center space-y-2">
           <div className="flex justify-center mb-4">
             <Logo showText={true} />
@@ -88,7 +88,7 @@ export default function SignUpPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card/70 p-6 sm:p-8 shadow-2xl backdrop-blur-xl space-y-5">
+        <div className="rounded-2xl border border-border bg-card/70 p-6 sm:p-8 shadow-2xl backdrop-blur-xl space-y-5 animate-scale-in">
           {error && (
             <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs font-semibold text-red-500 animate-fade-in">
               {error}

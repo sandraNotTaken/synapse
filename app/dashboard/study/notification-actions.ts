@@ -226,21 +226,7 @@ export async function generateSimulatedNotifications() {
       });
     }
 
-    // 4. XP LEVEL-UP NOTIFICATION TRIGGER
-    const hasLevelNotif = user.notifications.some(
-      (n) => n.title.includes("Level Up") && n.createdAt >= startOfToday
-    );
 
-    if (user.xp >= 100 && !hasLevelNotif) {
-      await prisma.notification.create({
-        data: {
-          title: `⚡ Level ${user.level} Thinker Milestone!`,
-          body: `Awesome progress! You've accumulated ${user.xp} total XP points across your study sessions.`,
-          type: "system",
-          userId: user.id,
-        },
-      });
-    }
 
     revalidatePath("/dashboard");
     return { success: true };

@@ -43,7 +43,14 @@ export default function NotificationCenter() {
     setIsOpen(!isOpen);
     if (!isOpen && !isOffline) {
       startTransition(async () => {
-        await generateSimulatedNotifications();
+        // Prevent immediately generating notifications if they were cleared recently (within 12 hours)
+        const lastCleared = localStorage.getItem("lastClearedNotifications");
+        const now = Date.now();
+        const shouldSimulate = !lastCleared || (now - parseInt(lastCleared) > 12 * 60 * 60 * 1000);
+
+        if (shouldSimulate) {
+          await generateSimulatedNotifications();
+        }
         await loadNotifications();
       });
     }
@@ -76,6 +83,8 @@ export default function NotificationCenter() {
       await clearAllNotifications();
       setNotifications([]);
       setIsOpen(false);
+      // Save clear timestamp to avoid recreation loop
+      localStorage.setItem("lastClearedNotifications", Date.now().toString());
     } catch (err) {
       console.error("Failed to clear notifications:", err);
     } finally {
