@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Calendar, Brain, ArrowRight, Play, CheckCircle2 } from "lucide-react";
+import { Calendar, Brain, ArrowRight, Play, CheckCircle2, Info } from "lucide-react";
 import Link from "next/link";
 
 interface StudyCalendarProps {
@@ -80,7 +80,21 @@ export default function StudyCalendar({ cards }: StudyCalendarProps) {
             <Calendar className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-foreground">14-Day Study Forecast</h3>
+            <h3 className="text-lg font-bold text-foreground flex items-center gap-1.5">
+              14-Day Study Forecast
+              <span className="relative group/tooltip inline-flex items-center cursor-help">
+                <Info className="h-4 w-4 text-muted-foreground hover:text-indigo-500 transition-colors duration-200" />
+                
+                {/* Tooltip Content */}
+                <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-72 rounded-2xl border border-border bg-card p-4 text-[11px] font-normal leading-relaxed text-muted-foreground shadow-2xl backdrop-blur-xl opacity-0 scale-95 origin-bottom transition-all duration-200 group-hover/tooltip:opacity-100 group-hover/tooltip:scale-100 z-50">
+                  <strong className="text-foreground block mb-1">💡 How it works:</strong>
+                  As you review flashcards and rate your memory confidence, Synapse automatically schedules the next study date for each card. The calendar below shows your upcoming review workload. Click any day to view details and start studying cards due on that date.
+                  {/* Tooltip Arrow */}
+                  <span className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-card" />
+                  <span className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-border -z-10 translate-y-[1px]" />
+                </span>
+              </span>
+            </h3>
             <p className="text-xs text-muted-foreground">
               See when your flashcards are due for review so you can plan ahead.
             </p>
@@ -103,13 +117,6 @@ export default function StudyCalendar({ cards }: StudyCalendarProps) {
             <span>Heavy (16+)</span>
           </div>
         </div>
-      </div>
-
-      {/* How it works explanation */}
-      <div className="text-[11px] leading-relaxed text-muted-foreground bg-indigo-500/5 border border-indigo-500/10 rounded-xl p-4">
-        <strong>💡 How it works:</strong> As you review flashcards and rate your memory confidence, Synapse automatically 
-        schedules the next study date for each card. The calendar below shows your upcoming review workload. 
-        Click any day to view details and start studying cards due on that date.
       </div>
 
       {/* 14-Day Forecast Grid */}
