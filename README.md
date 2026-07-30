@@ -1,35 +1,35 @@
-# 🧠 Synapse — Advanced Active Recall & Spaced Repetition Study Suite
+# Synapse — Advanced Active Recall & Spaced Repetition Study Suite
 
 Synapse is a high-fidelity, private web application designed to optimize learning retention through cognitive science principles. By combining client-side computing (for zero-latency processing) with state-of-the-art AI assistance, Synapse helps students and professionals master complex concepts faster.
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
-### 1. 🗂️ PDF-to-Deck Flashcard Generator
+### 1. PDF-to-Deck Flashcard Generator
 * **Browser-Native Extraction**: Loads the Mozilla `PDF.js` parsing engine client-side at runtime to extract plain text from lecture slides and textbook PDFs without server-side compute overhead.
 * **AI Generation**: Pipes text to a Llama 3.3 model to instantly produce high-quality, conceptual active recall question/answer pairs.
 
-### 2. 📅 14-Day Spaced Repetition Forecast Calendar
+### 2. 14-Day Spaced Repetition Forecast Calendar
 * **Review Load Forecasting**: Computes upcoming study loads by grouping card due dates from the database for the next two weeks.
-* **Visual Workload Heatmap**: Uses a color-coded legend to represent review load weight (🟢 Light: 1-5 cards, 🟡 Medium: 6-15 cards, 🔴 Heavy: 16+ cards).
-* **Relative Timeline**: Renders relative date labels (`Today`, `Tomorrow`) for immediate clarity, with interactive click actions to preview decks due on that day.
+* **Visual Workload Heatmap**: Uses a color-coded legend to represent review load weight (Light: 1-5 cards, Medium: 6-15 cards, Heavy: 16+ cards).
+* **Relative Timeline**: Renders relative date labels (Today, Tomorrow) for immediate clarity, with interactive click actions to preview decks due on that day.
 
-### 3. 🎙️ Voice-Activated Flashcards (Speech Recall)
+### 3. Voice-Activated Flashcards (Speech Recall)
 * **Web Speech Recognition**: Uses the browser's native Web Speech API to capture verbal user answers live during flashcard review sessions.
-* **Semantic Similarity Scorer**: Evaluates spoken answers against correct card backs using a keyword-matching string algorithm, displays matching accuracy on a progress bar, and suggests spaced repetition grades (e.g. *Easy*, *Good*, *Hard*, *Again*).
+* **Semantic Similarity Scorer**: Evaluates spoken answers against correct card backs using a keyword-matching string algorithm, displays matching accuracy on a progress bar, and suggests spaced repetition grades (e.g. Easy, Good, Hard, Again).
 
-### 4. ⏱️ Pomodoro Focus Workspace
+### 4. Pomodoro Focus Workspace
 * **Brownian Noise Backdrop**: Synthesizes client-side lowpass-filtered Brownian noise (rain backdrop) using the Web Audio API (zero file downloads or external assets needed).
-* **Document Title Sync**: Synchronizes countdown timers to the browser document tab title (e.g., `(24:18) Focus | Synapse`) to keep users on task even when switching tabs.
+* **Document Title Sync**: Synchronizes countdown timers to the browser document tab title (e.g., (24:18) Focus | Synapse) to keep users on task even when switching tabs.
 
-### 5. 🧑‍🏫 Feynman Technique & Practice Exams
+### 5. Feynman Technique & Practice Exams
 * **Feynman Simulator**: Prompts users to explain a concept in simple terms, evaluates explaining coherence, and pinpoints knowledge gaps.
 * **Practice Exams**: Generates dynamic 4-question Multiple Choice mock exams from study notes to test active recall retention.
 
 ---
 
-## 🛠️ Technology Stack
+## Tech Stack
 
 * **Framework**: [Next.js 15](https://nextjs.org/) (App Router, Server Actions, and React Server Components)
 * **Database & ORM**: [Prisma ORM](https://www.prisma.io/) with [PostgreSQL](https://www.postgresql.org/) (Hosted on serverless [Neon](https://neon.tech/))
@@ -39,7 +39,7 @@ Synapse is a high-fidelity, private web application designed to optimize learnin
 
 ---
 
-## 📊 Database Schema Relationships
+## Database Schema Relationships
 
 ```mermaid
 erDiagram
@@ -98,7 +98,7 @@ erDiagram
 
 ---
 
-## 🚀 Local Installation & Setup
+## Local Installation & Setup
 
 ### 1. Prerequisites
 Ensure you have [Node.js](https://nodejs.org/) (v18+) and [pnpm](https://pnpm.io/) installed.
@@ -139,7 +139,7 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ---
 
-## ⚡ Production Deployment & Performance Tuning
+## Production Deployment & Performance Tuning
 
 ### 1. Neon Database Pooling (Crucial)
 In stateless, serverless environments (like Vercel), TCP connection limits are easily saturated. 
