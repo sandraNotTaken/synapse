@@ -21,6 +21,15 @@ export async function registerUser(formData: FormData) {
     return { error: "Passwords do not match." };
   }
 
+  // Check if username/name already exists
+  const existingName = await prisma.user.findFirst({
+    where: { name: { equals: name, mode: "insensitive" } },
+  });
+
+  if (existingName) {
+    return { error: "This username is already taken." };
+  }
+
   // Check if user already exists
   const existingUser = await prisma.user.findFirst({
     where: { email: { equals: email, mode: "insensitive" } },

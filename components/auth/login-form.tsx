@@ -5,10 +5,9 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Mail, Lock, ArrowRight, Loader2, Sparkles, CheckCircle2 } from "lucide-react";
-import GoogleButton from "./google-button";
 
 export default function LoginForm() {
-  const [email, setEmail] = useState("");
+  const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,21 +18,21 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
+    if (!emailOrUsername.trim()) return;
 
     setLoading(true);
     setError(null);
 
     try {
       const res = await signIn("credentials", {
-        email: email.trim(),
+        email: emailOrUsername.trim(),
         password,
         redirect: false,
         redirectTo: "/dashboard",
       });
 
       if (res?.error) {
-        setError("Invalid email address or password.");
+        setError("Invalid email, username, or password.");
         setLoading(false);
       } else {
         // Successful login -> navigate to dashboard
@@ -68,21 +67,21 @@ export default function LoginForm() {
         </div>
       )}
 
-      {/* Email & Password Form */}
+      {/* Email/Username & Password Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-1.5">
           <label htmlFor="email" className="text-xs font-bold text-foreground flex items-center gap-1.5">
             <Mail className="h-3.5 w-3.5 text-indigo-500" />
-            Email Address
+            Email or Username
           </label>
           <input
             id="email"
             name="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="text"
+            value={emailOrUsername}
+            onChange={(e) => setEmailOrUsername(e.target.value)}
             required
-            placeholder="you@example.com"
+            placeholder="you@example.com or username"
             autoComplete="username"
             className="w-full rounded-xl border border-border bg-card/80 px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:border-indigo-500 focus:outline-none transition"
           />
@@ -125,10 +124,8 @@ export default function LoginForm() {
         </button>
       </form>
 
-      {/* Google OAuth & Signup Links */}
+      {/* Signup Links */}
       <div className="space-y-4 pt-2">
-        <GoogleButton />
-
         <div className="text-center text-xs text-muted-foreground">
           Don&apos;t have an account?{" "}
           <Link href="/signup" className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline">

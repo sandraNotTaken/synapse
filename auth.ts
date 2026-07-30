@@ -18,19 +18,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Credentials({
       name: "credentials",
       credentials: {
-        email: { label: "Email", type: "text" },
+        email: { label: "Email or Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const email = (credentials?.email as string)?.trim()?.toLowerCase();
+        const emailOrUsername = (credentials?.email as string)?.trim();
         const password = (credentials?.password as string)?.trim();
 
-        if (!email) return null;
+        if (!emailOrUsername) return null;
 
         try {
-          // Find user by email (case insensitive)
+          // Find user by email or username (case insensitive)
           let user = await prisma.user.findFirst({
-            where: { email: { equals: email, mode: "insensitive" } },
+            where: {
+              OR: [
+                { email: { equals: emailOrUsername, mode: "insensitive" } },
+                { name: { equals: emailOrUsername, mode: "insensitive" } },
+              ],
+            },
           });
 
           // If user doesn't exist, return null so they are forced to register/sign-up first
