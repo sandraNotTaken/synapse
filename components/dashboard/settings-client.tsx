@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useTransition } from "react";
-import { User, Settings, ShieldAlert, KeyRound, Check, AlertTriangle, Loader2, BarChart3, Award, Flame, Zap, Brain, Sparkles, QrCode, Copy, ShieldCheck, Lock, BookOpen, GraduationCap, Timer } from "lucide-react";
+import { User, Settings, ShieldAlert, KeyRound, Check, AlertTriangle, Loader2, BarChart3, Award, Flame, Zap, Brain, Sparkles, QrCode, Copy, ShieldCheck, Lock, BookOpen, GraduationCap, Timer, Camera } from "lucide-react";
 import { updateUserProfile, resetAccountData } from "@/app/dashboard/settings/user-actions";
 import { useRouter } from "next/navigation";
 import ThemeToggle from "./theme-toggle";
@@ -13,6 +13,7 @@ interface SettingsClientProps {
   initialName: string;
   email: string;
   initials: string;
+  initialImage: string | null;
   currentGoal: number;
   xp?: number;
   level?: number;
@@ -25,6 +26,7 @@ export default function SettingsClient({
   initialName,
   email,
   initials,
+  initialImage,
   currentGoal,
   xp = 120,
   level = 2,
@@ -32,6 +34,7 @@ export default function SettingsClient({
 }: SettingsClientProps) {
   const [activeTab, setActiveTab] = useState<TabType>("profile");
   const [name, setName] = useState(initialName);
+  const [profileImage, setProfileImage] = useState<string | null>(initialImage);
   const [savingProfile, setSavingProfile] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [shortcutsEnabled, setShortcutsEnabled] = useState(true);
@@ -104,17 +107,34 @@ export default function SettingsClient({
     localStorage.setItem("synapse_shortcuts_enabled", String(newValue));
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 3 * 1024 * 1024) {
+      alert("File size exceeds 3MB limit.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProfileImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
 
     setSavingProfile(true);
     try {
-      await updateUserProfile(name.trim());
+      await updateUserProfile(name.trim(), profileImage || undefined);
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
+      router.refresh();
     } catch (err) {
-      console.error("Failed to update profile name:", err);
+      console.error("Failed to update profile:", err);
     } finally {
       setSavingProfile(false);
     }
@@ -213,8 +233,27 @@ export default function SettingsClient({
 
             {/* Profile Avatar & Email Header */}
             <div className="flex items-center gap-4 border-b border-border pb-6">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-indigo-500/10 text-lg font-bold text-indigo-600 dark:text-indigo-400 border border-indigo-500/30">
-                {initials}
+              <div className="relative group flex h-16 w-16 shrink-0 items-center justify-center rounded-full overflow-hidden bg-indigo-500/10 text-lg font-bold text-indigo-600 dark:text-indigo-400 border border-indigo-500/30">
+                {profileImage ? (
+                  <img
+                    src={profileImage}
+                    alt={name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span>{initials}</span>
+                )}
+                {/* Photo upload overlay */}
+                <label className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer text-[10px] text-white font-bold gap-1">
+                  <Camera className="h-4 w-4" />
+                  <span>Edit</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                </label>
               </div>
               <div>
                 <h4 className="font-bold text-foreground">{name}</h4>

@@ -33,6 +33,7 @@ export default async function SettingsPage() {
       dailyGoal: true,
       xp: true,
       level: true,
+      image: true,
       studySessions: {
         where: {
           createdAt: { gte: sevenDaysAgo },
@@ -44,6 +45,7 @@ export default async function SettingsPage() {
   const currentGoal = userRecord?.dailyGoal ?? 45;
   const xp = userRecord?.xp ?? 0;
   const level = userRecord?.level ?? 1;
+  const initialImage = userRecord?.image ?? null;
 
   // Build real weekly analytics data from database
   const daysMap = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -115,6 +117,7 @@ export default async function SettingsPage() {
         initialName={name}
         email={email}
         initials={initials}
+        initialImage={initialImage}
         currentGoal={currentGoal}
         xp={xp}
         level={level}

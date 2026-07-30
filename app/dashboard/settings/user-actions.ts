@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-export async function updateUserProfile(name: string) {
+export async function updateUserProfile(name: string, image?: string) {
   const session = await auth();
   if (!session?.user?.email) {
     throw new Error("Unauthorized");
@@ -12,7 +12,10 @@ export async function updateUserProfile(name: string) {
 
   const updatedUser = await prisma.user.update({
     where: { email: session.user.email },
-    data: { name },
+    data: { 
+      name,
+      ...(image !== undefined ? { image } : {})
+    },
   });
 
   revalidatePath("/dashboard/settings");
