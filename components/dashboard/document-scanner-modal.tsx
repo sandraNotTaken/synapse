@@ -90,8 +90,8 @@ export default function DocumentScannerModal({
           let width = img.width;
           let height = img.height;
 
-          // Limit maximum dimension to 1200px to maintain text readability while drastically shrinking size
-          const MAX_DIM = 1200;
+          // Limit maximum dimension to 800px to maintain text readability while optimizing for execution time limits
+          const MAX_DIM = 800;
           if (width > MAX_DIM || height > MAX_DIM) {
             if (width > height) {
               height = Math.round((height * MAX_DIM) / width);
@@ -111,8 +111,8 @@ export default function DocumentScannerModal({
           }
 
           ctx.drawImage(img, 0, 0, width, height);
-          // Compress to JPEG with 75% quality to keep it under 300KB
-          const dataUrl = canvas.toDataURL("image/jpeg", 0.75);
+          // Compress to JPEG with 60% quality to optimize performance and prevent Vercel 10s execution timeouts
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.6);
           resolve(dataUrl);
         };
         img.onerror = (err) => reject(err);
