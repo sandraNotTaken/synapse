@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition, useRef } from "react";
 import { updateTopicContent } from "@/app/actions/topic";
 import RichTextEditor from "./rich-text-editor";
 import { useOffline } from "@/components/providers/offline-provider";
@@ -22,18 +22,23 @@ export default function TopicEditor({
   const [saved, setSaved] = useState(true);
   const [isPending, startTransition] = useTransition();
 
+  const lastSavedRef = useRef(value);
+
   useKeyboardShortcuts(
     {
       "ctrl+s": () => {
         startTransition(async () => {
           if (isOffline) {
             queueNoteContent(topicId, content);
+            lastSavedRef.current = content;
           } else {
             try {
               await updateTopicContent(topicId, content);
+              lastSavedRef.current = content;
             } catch (err) {
               console.error("Manual save failed, saving locally:", err);
               queueNoteContent(topicId, content);
+              lastSavedRef.current = content;
             }
           }
           setSaved(true);
@@ -59,8 +64,8 @@ export default function TopicEditor({
 
   // Debounced auto-save to server
   useEffect(() => {
-    // If local state matches parent state, it's already in sync
-    if (content === value) {
+    // If content matches the last saved state, do not trigger save
+    if (content === lastSavedRef.current) {
       return;
     }
 
@@ -70,12 +75,15 @@ export default function TopicEditor({
       startTransition(async () => {
         if (isOffline) {
           queueNoteContent(topicId, content);
+          lastSavedRef.current = content;
         } else {
           try {
             await updateTopicContent(topicId, content);
+            lastSavedRef.current = content;
           } catch (err) {
             console.error("Auto-save failed, saving locally:", err);
             queueNoteContent(topicId, content);
+            lastSavedRef.current = content;
           }
         }
         setSaved(true);
@@ -83,7 +91,7 @@ export default function TopicEditor({
     }, 1200);
 
     return () => clearTimeout(timer);
-  }, [content, topicId, value, isOffline, queueNoteContent]);
+  }, [content, topicId, isOffline, queueNoteContent]);
 
   return (
     <div className="space-y-3">
@@ -119,12 +127,15 @@ export default function TopicEditor({
             startTransition(async () => {
               if (isOffline) {
                 queueNoteContent(topicId, content);
+                lastSavedRef.current = content;
               } else {
                 try {
                   await updateTopicContent(topicId, content);
+                  lastSavedRef.current = content;
                 } catch (err) {
                   console.error("Save failed, saving locally:", err);
                   queueNoteContent(topicId, content);
+                  lastSavedRef.current = content;
                 }
               }
               setSaved(true);
