@@ -80,6 +80,49 @@ export default function DocumentScannerModal({
     });
   };
 
+  const compressImageForOCR = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let width = img.width;
+          let height = img.height;
+
+          // Limit maximum dimension to 1200px to maintain text readability while drastically shrinking size
+          const MAX_DIM = 1200;
+          if (width > MAX_DIM || height > MAX_DIM) {
+            if (width > height) {
+              height = Math.round((height * MAX_DIM) / width);
+              width = MAX_DIM;
+            } else {
+              width = Math.round((width * MAX_DIM) / height);
+              height = MAX_DIM;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            reject(new Error("Failed to get canvas context"));
+            return;
+          }
+
+          ctx.drawImage(img, 0, 0, width, height);
+          // Compress to JPEG with 75% quality to keep it under 300KB
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.75);
+          resolve(dataUrl);
+        };
+        img.onerror = (err) => reject(err);
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = (err) => reject(err);
+      reader.readAsDataURL(file);
+    });
+  };
+
   const readTextFile = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -126,7 +169,7 @@ export default function DocumentScannerModal({
           }
           fullExtractedText += `\n\n### Extracted Notes: ${file.name.replace(/\.[^/.]+$/, "")}\n${pdfText}`;
         } else if (["png", "jpg", "jpeg", "webp", "gif"].includes(ext)) {
-          const base64 = await fileToBase64(file);
+          const base64 = await compressImageForOCR(file);
           const res = await fetch("/api/ai/ocr", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
