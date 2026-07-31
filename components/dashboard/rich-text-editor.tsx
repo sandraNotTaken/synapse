@@ -35,7 +35,7 @@ export default function RichTextEditor({
     editorProps: {
         attributes: {
             class:
-                "prose dark:prose-invert prose-headings:text-foreground prose-p:text-foreground/90 prose-strong:text-foreground max-w-none h-[550px] overflow-y-auto rounded-2xl border border-border bg-card/45 p-10 outline-none",
+                "prose dark:prose-invert prose-headings:text-foreground prose-p:text-foreground/90 prose-strong:text-foreground max-w-none h-[550px] overflow-y-auto no-scrollbar rounded-2xl border border-border bg-card/45 p-10 outline-none",
         },
     },
 

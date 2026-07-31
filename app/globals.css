@@ -151,6 +151,13 @@
 }
 
 @layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
   .text-h1 {
     @apply text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight text-foreground;
   }
