@@ -75,6 +75,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.email = user.email;
         token.name = user.name;
       }
+      // Explicitly remove picture/image from token to prevent bloated cookie headers
+      delete token.picture;
+      delete token.image;
       return token;
     },
     async session({ session, token }) {
