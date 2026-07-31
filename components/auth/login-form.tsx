@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Mail, Lock, ArrowRight, Loader2, Sparkles, CheckCircle2, Eye, EyeOff } from "lucide-react";
+import GoogleButton from "./google-button";
 
 export default function LoginForm() {
   const [emailOrUsername, setEmailOrUsername] = useState("");
@@ -133,6 +134,19 @@ export default function LoginForm() {
           <ArrowRight className="h-4 w-4" />
         </button>
       </form>
+
+      {/* Divider */}
+      <div className="relative flex items-center justify-center py-2">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-border"></div>
+        </div>
+        <span className="relative bg-background px-3 text-[9px] uppercase tracking-widest text-muted-foreground font-bold">
+          or continue with
+        </span>
+      </div>
+
+      {/* Google Login Button */}
+      <GoogleButton />
 
       {/* Signup Links */}
       <div className="space-y-4 pt-2">

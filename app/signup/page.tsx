@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { User, Mail, Lock, ArrowRight, Loader2, Sparkles, CheckCircle2, ShieldCheck, Eye, EyeOff } from "lucide-react";
 import Logo from "@/components/branding/logo";
+import GoogleButton from "@/components/auth/google-button";
 import { registerUser } from "./actions";
 
 export default function SignUpPage() {
@@ -197,6 +198,19 @@ export default function SignUpPage() {
                 <span>Create Account</span>
                 <ArrowRight className="h-4 w-4" />
               </button>
+
+              {/* Divider */}
+              <div className="relative flex items-center justify-center py-2">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-border"></div>
+                </div>
+                <span className="relative bg-[#050508] px-3 text-[9px] uppercase tracking-widest text-muted-foreground font-bold">
+                  or continue with
+                </span>
+              </div>
+
+              {/* Google Signup Button */}
+              <GoogleButton />
             </form>
           )}
 
