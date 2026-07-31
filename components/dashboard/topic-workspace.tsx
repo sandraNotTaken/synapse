@@ -644,7 +644,10 @@ export default function TopicWorkspace({
       <DocumentScannerModal
         isOpen={scannerOpen}
         onClose={() => setScannerOpen(false)}
-        onExtractedText={(text) => setContent((prev) => prev + "\n" + text)}
+        onExtractedText={(text) => {
+          const htmlText = convertMarkdownToHTML(text);
+          setContent((prev) => prev + htmlText);
+        }}
       />
     </main>
   );
@@ -724,4 +727,67 @@ function parseInlineMarkdown(text: string) {
       return subPart;
     });
   });
+}
+
+function convertMarkdownToHTML(markdown: string): string {
+  if (!markdown) return "";
+
+  const lines = markdown.split("\n");
+  let html = "";
+  let inList = false;
+
+  const parseInline = (text: string) => {
+    return text
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+      .replace(/`([^`]+)`/g, '<code class="rounded bg-muted px-1.5 py-0.5 font-mono text-[11px] text-indigo-600 dark:text-indigo-400 bg-indigo-500/5">$1</code>');
+  };
+
+  for (let line of lines) {
+    const trimmed = line.trim();
+
+    // Handle horizontal rule
+    if (trimmed === "---") {
+      if (inList) {
+        html += "</ul>";
+        inList = false;
+      }
+      html += "<hr />";
+      continue;
+    }
+
+    // Handle list closing
+    if (inList && !trimmed.startsWith("- ") && !trimmed.startsWith("* ") && !trimmed.startsWith("1. ")) {
+      html += "</ul>";
+      inList = false;
+    }
+
+    if (trimmed.startsWith("### ")) {
+      html += `<h3>${parseInline(trimmed.substring(4))}</h3>`;
+    } else if (trimmed.startsWith("## ")) {
+      html += `<h2>${parseInline(trimmed.substring(3))}</h2>`;
+    } else if (trimmed.startsWith("# ")) {
+      html += `<h1>${parseInline(trimmed.substring(2))}</h1>`;
+    } else if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+      if (!inList) {
+        html += '<ul class="list-disc pl-5 my-2 space-y-1">';
+        inList = true;
+      }
+      const itemContent = trimmed.substring(2);
+      html += `<li>${parseInline(itemContent)}</li>`;
+    } else if (trimmed.startsWith("> ")) {
+      html += `<blockquote class="border-l-4 border-indigo-500/30 pl-4 italic text-muted-foreground my-3">${parseInline(trimmed.substring(2))}</blockquote>`;
+    } else if (trimmed === "") {
+      // Empty line - just spacing
+      continue;
+    } else {
+      // Normal paragraph
+      html += `<p class="leading-relaxed mb-4 text-foreground/90">${parseInline(trimmed)}</p>`;
+    }
+  }
+
+  if (inList) {
+    html += "</ul>";
+  }
+
+  return html;
 }
