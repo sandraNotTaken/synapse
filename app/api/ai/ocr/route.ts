@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     }
 
     const response = await generateText({
-      model: groq("llama-3.2-11b-vision-preview"),
+      model: groq("qwen/qwen3.6-27b"),
       system: "You are an expert OCR transcription assistant. Transcribe all readable text from this document image. Output only the transcribed text, formatting headers and bullet points neatly in Markdown. Do not include preambles, explanations, or code blocks.",
       messages: [
         {
